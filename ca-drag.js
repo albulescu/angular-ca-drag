@@ -10,255 +10,265 @@
 
 angular.module('caDrag', [])
 
-.service('DragManager', function( $document, $timeout, DraggableElement ){
+.provider('DragManager', function(  ){
 
-        /**
-         * Dragging feedback indicator
-         * @type {[type]}
-         */
-    var _feedback = null,
+    var logging = false;
 
-        /**
-         * Flag indicating that dragging is active
-         * @type {Boolean}
-         */
-        _dragging = false,
-        
-        /**
-         * Registered dragging elements
-         * @type {DraggingElement[]}
-         */
-        _elements = [],
-
-        /**
-         * Registered drop targets
-         * @type {Array}
-         */
-        _targets  = [],
-
-        /**
-         * Active dragging element
-         * @type {DraggingElement}
-         */
-        _active   = null,
-
-        /**
-         * Current drop zone
-         * @type {Object}
-         */
-        _dropzone = false;
-
-    /**
-     * Set flags when start dragging to check if
-     * we are on a drop zone
-     */
-    var onDragStart = function( event ) {
-        _active   = this;
-        _dragging = true;
+    this.enableLogging = function() {
+        logging = true;
     };
 
-    /**
-     * If dragging active search if current hover element
-     * is a drop zone.
-     */
-    var onDropTargetOver = function(event) {
+    this.$get = ['$document', '$timeout', '$log', 'DraggableElement', 
+        function($document,    $timeout, $log,  DraggableElement){
+            /**
+             * Dragging feedback indicator
+             * @type {[type]}
+             */
+        var _feedback = null,
 
-        if( _dragging ) {
-            //search drop zone by current hover element
-            _dropzone = dropZoneByElement( event.currentTarget );
-
-            if( _dropzone ) {
-                //add class to highlight drop zone
-                _dropzone.addClass('ca-drag-over');
-                //get callback
-                var over = _dropzone.data('ca-drop-over') || angular.noop;
-                //trigger drop over
-                over( _dropzone.data('ca-drop-scope'), { $event : event });
-            }
-        }
-    };
-    
-    /**
-     * Called when move out from drop zone
-     */
-    var onDropTargetOut = function(event) {
-        if( _dropzone ) {
-            _dropzone.removeClass('ca-drag-over');
-            _dropzone = null;
-        }
-    };
-
-    /**
-     * Search drop zone by given element from mouse move event
-     */
-    var dropZoneByElement = function( element ) {
-
-        for(var i=0; i < _targets.length; i++) {
-            if( element == _targets[i] ) {
-                return _targets[i];
-            }
-        }
-
-        return null;
-    };
-
-    /**
-     * Handler called when drag complete
-     */
-    var onDragComplete = function( event ) {
-        
-        //set dragging flag to false. Set delayed to have posibility
-        //to stop click event propagation on the dragging element
-        $timeout(function(){ _dragging = false; });
-
-        if(!_dropzone) {
-            return;
-        }
-        
-        if( !event.isDefaultPrevented() ){
-            //highlight drop zone
-            _dropzone.css('border','none');
-            //remove dragging element from his original place
-            var element = event.element.detach();
-            //attach element to the drop zone
-            _dropzone.append(element);
-        }
-
-        var dropModel = _dropzone.attr('ca-drop-model');
-
-        if( dropModel )
-        {
-            //get the scope model to update
-            var scope = _dropzone.data('ca-drop-scope');
-            var model = scope[ dropModel ];
+            /**
+             * Flag indicating that dragging is active
+             * @type {Boolean}
+             */
+            _dragging = false,
             
-            if( angular.isDefined( model ) )
-            {
-                if( angular.isArray(model) ) {
-                    //push into if is array
-                    model.push( event.target.data);
-                } else {
-                    //replace if object
-                    scope[ dropModel ] = event.target.data;
+            /**
+             * Registered dragging elements
+             * @type {DraggingElement[]}
+             */
+            _elements = [],
+
+            /**
+             * Registered drop targets
+             * @type {Array}
+             */
+            _targets  = [],
+
+            /**
+             * Active dragging element
+             * @type {DraggingElement}
+             */
+            _active   = null,
+
+            /**
+             * Current drop zone
+             * @type {Object}
+             */
+            _dropzone = false;
+
+        /**
+         * Set flags when start dragging to check if
+         * we are on a drop zone
+         */
+        var onDragStart = function( event ) {
+            _active   = this;
+            _dragging = true;
+        };
+
+        /**
+         * If dragging active search if current hover element
+         * is a drop zone.
+         */
+        var onDropTargetOver = function(event) {
+
+            if( _dragging ) {
+                
+                //search drop zone by current hover element
+                _dropzone = dropZoneByElement( event.currentTarget );
+
+                if( _dropzone ) {
+                    //add class to highlight drop zone
+                    _dropzone.addClass('ca-drag-over');
+                    //get callback
+                    var over = _dropzone.data('ca-drop-over') || angular.noop;
+                    //trigger drop over
+                    over( _dropzone.data('ca-drop-scope'), { $event : _active.event('drop.over', event) });
                 }
             }
+        };
+        
+        /**
+         * Called when move out from drop zone
+         */
+        var onDropTargetOut = function(event) {
+            if( _dropzone ) {
+                _dropzone.removeClass('ca-drag-over');
+                _dropzone = null;
+            }
+        };
+
+        /**
+         * Search drop zone by given element from mouse move event
+         */
+        var dropZoneByElement = function( element ) {
+
+            for(var i=0; i < _targets.length; i++) {
+                if( element == _targets[i][0]/*jqLite*/ ) {
+                    return _targets[i];
+                }
+            }
+
+            return null;
+        };
+
+        /**
+         * Handler called when drag complete
+         */
+        var onDragComplete = function( event ) {
+            
+            //set dragging flag to false. Set delayed to have posibility
+            //to stop click event propagation on the dragging element
+            $timeout(function(){ _dragging = false; });
+
+            if(!_dropzone) {
+                return;
+            }
+            
+            if( !event.isDefaultPrevented() ){
+                //highlight drop zone
+                _dropzone.css('border','none');
+                //remove dragging element from his original place
+                var element = event.element.detach();
+                //attach element to the drop zone
+                _dropzone.append(element);
+            }
+
+            var dropModel = _dropzone.attr('ca-drop-model');
+            //get the scope model to update
+            var scope = _dropzone.data('ca-drop-scope');
+
+            if( dropModel )
+            {
+                var model = scope[ dropModel ];
+                
+                if( angular.isDefined( model ) )
+                {
+                    if( angular.isArray(model) ) {
+                        //push into if is array
+                        model.push( event.target.data);
+                    } else {
+                        //replace if object
+                        scope[ dropModel ] = event.target.data;
+                    }
+                }
+            }
+
+            // callback call  
+            var complete = _dropzone.data('ca-drop-complete') || angular.noop;     
+
+            //do callback
+            complete( scope, { $event : _active.event('drop', event), $drop : _dropzone });
+
+            _active = null;
+        };
+
+        var DragManager = {
+
+            COPY: 'copy',
+
+            LINK: 'link',
+
+            MOVE: 'move',
+
+            NONE: 'none',
+
+            /**
+             * Cancel current dragging element
+             */
+            cancel : function() {
+                
+                if( !_active ) {
+                    return false;
+                }
+
+                _active.cancel();
+
+                return true;
+            },
+
+            /**
+             * Add drop target element
+             * @param {DomElement} element Dom element
+             * @param {Scope}   scope    Angular scope
+             * @param {Function} Callback method called when drop over
+             * @param {Function} Callback method called when drop complete
+             */
+            addDropTarget : function( element, scope, over, complete ){
+
+                var dropzone = element.data('ca-drap-scope');
+
+                //Skip if element is already decorated with dragging class
+                if( dropzone ) {
+                    return dropzone;
+                }
+
+                //store the scope to element
+                element.data('ca-drop-scope', scope);
+
+                //set drop over function if available
+                if( angular.isFunction(over) ) {
+                    element.data('ca-drop-over', over);
+                }
+
+                //set drop complete function if available
+                if( angular.isFunction(complete) ) {
+                    element.data('ca-drop-complete', complete);
+                }
+
+                //add handlers to drop zone
+                element.hover(onDropTargetOver, onDropTargetOut)
+
+                //save drop target object
+                _targets.push(element);
+            },
+
+            /**
+             * Create draggable element
+             * @param  Dom element
+             * @return DraggableElement
+             */
+            register: function( element ) {
+
+                var draggable = element.data('ca-drag');
+
+                //Skip if element is already decorated with dragging class
+                if( draggable ) {
+                    return draggable;
+                }
+
+                //create draggable element from dom element
+                draggable = new DraggableElement(element);
+
+                //add handlers for drag manager for drop functionality
+                draggable.on('start', onDragStart);
+                draggable.on('complete', onDragComplete);
+
+                //add drag decorator as data to current element
+                element.data('ca-drag', draggable);
+
+                //store element in manager
+                _elements.push( draggable );
+
+                return draggable;
+            },
         }
 
-        // callback call  
-        var complete = _dropzone.data('ca-drop-complete') || angular.noop;     
-        
-        //do callback
-        complete( scope, { $event : event });
-
-        _active = null;
-    };
-
-    var DragManager = {
-
-        COPY: 'copy',
-
-        LINK: 'link',
-
-        MOVE: 'move',
-
-        NONE: 'none',
+        /**
+         * Dragging flag getter
+         */
+        Object.defineProperty(DragManager, 'dragging', {
+            get: function() { return _dragging; }
+        });
 
         /**
-         * Cancel current dragging element
+         * Getter to get the active DraggingElement
          */
-        cancel : function() {
-            
-            if( !_active ) {
-                return false;
-            }
+        Object.defineProperty(DragManager, 'active', {
+            get: function() { return _active; }
+        });
 
-            _active.cancel();
-
-            return true;
-        },
-
-        /**
-         * Add drop target element
-         * @param {DomElement} element Dom element
-         * @param {Scope}   scope    Angular scope
-         * @param {Function} Callback method called when drop over
-         * @param {Function} Callback method called when drop complete
-         */
-        addDropTarget : function( element, scope, over, complete ){
-
-            var dropzone = element.data('ca-drap-scope');
-
-            //Skip if element is already decorated with dragging class
-            if( dropzone ) {
-                return dropzone;
-            }
-
-            //store the scope to element
-            element.data('ca-drap-scope', scope);
-
-            //set drop over function if available
-            if( angular.isFunction(over) ) {
-                element.data('ca-drop-over', over);
-            }
-
-            //set drop complete function if available
-            if( angular.isFunction(complete) ) {
-                element.data('ca-drop-complete', complete);
-            }
-
-            //add handlers to drop zone
-            element.hover(onDropTargetOver, onDropTargetOut)
-
-            //save drop target object
-            _targets.push(element);
-        },
-
-        /**
-         * Create draggable element
-         * @param  Dom element
-         * @return DraggableElement
-         */
-        register: function( element ) {
-
-            var draggable = element.data('ca-drag');
-
-            //Skip if element is already decorated with dragging class
-            if( draggable ) {
-                return draggable;
-            }
-
-            //create draggable element from dom element
-            draggable = new DraggableElement(element);
-
-            //add handlers for drag manager for drop functionality
-            draggable.on('start', onDragStart);
-            draggable.on('complete', onDragComplete);
-
-            //add drag decorator as data to current element
-            element.data('ca-drag', draggable);
-
-            //store element in manager
-            _elements.push( draggable );
-
-            return draggable;
-        },
-    }
-
-    /**
-     * Dragging flag getter
-     */
-    Object.defineProperty(DragManager, 'dragging', {
-        get: function() { return _dragging; }
-    });
-
-    /**
-     * Getter to get the active DraggingElement
-     */
-    Object.defineProperty(DragManager, 'active', {
-        get: function() { return _active; }
-    });
-
-    return DragManager;
+        return DragManager;
+    }];
 })
 
 
@@ -388,13 +398,13 @@ angular.module('caDrag', [])
                 $document.unbind('touchmove mousemove', onMouseMove);
                 $document.unbind('touchend mouseup', onMouseUp);
 
-                _self.emit('complete', new DragEvent( 'complete', _self, event ));
+                _self.emit('complete', new DragEvent( 'drag.complete', _self, event ));
             };
 
             var onMouseMove = function( event ) {
                 event.preventDefault();
                 updateMovePosition( event );
-                _self.emit('dragging', new DragEvent( 'dragging', _self, event ));
+                _self.emit('dragging', new DragEvent( 'drag.move', _self, event ));
             };
 
 
@@ -405,7 +415,7 @@ angular.module('caDrag', [])
                 _startIntv = setTimeout(function(){
                     _dragging = true;
                     prepareForDragging( event );
-                    _self.emit('start', new DragEvent( 'start', _self, event ));
+                    _self.emit('start', new DragEvent( 'drag.start', _self, event ));
                     $document.bind('touchmove mousemove', onMouseMove);
                 }, 300);
                 
@@ -433,6 +443,10 @@ angular.module('caDrag', [])
                 }
             },
 
+            event : function(name, original) {
+                return new DragEvent( name, this, original );
+            },
+
             cancel: function() {
                 onMouseUp();
             },
@@ -453,6 +467,7 @@ angular.module('caDrag', [])
                 return _element;
             }
         };
+
 
         return new DraggableElement(element);
     };
@@ -546,20 +561,20 @@ angular.module('caDrag', [])
 /**
  * Register element as a drop target
  */
-.directive('caDropSuccess', function( $parse, DragManager ){
+.directive('caDropComplete', function( $parse, DragManager ){
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
             
             var fn = angular.noop;
 
-            if( attributes.caDropSuccess ) {
-                fn = $parse(attributes.caDropSuccess);
+            if( attributes.caDropComplete ) {
+                fn = $parse(attributes.caDropComplete);
             }
 
             DragManager.addDropTarget( element, scope );
 
-            element.data('ca-drag-success', fn );
+            element.data('ca-drop-complete', fn );
         }
     }
 })
@@ -580,7 +595,7 @@ angular.module('caDrag', [])
 
             DragManager.addDropTarget( element, scope );
 
-            element.data('ca-drag-over', fn );
+            element.data('ca-drop-over', fn );
         }
     }
 })
