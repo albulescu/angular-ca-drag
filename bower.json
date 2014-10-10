@@ -1,0 +1,26 @@
+{
+  "name": "ca-drag",
+  "version": "1.0.0",
+  "authors": [
+    "Cosmin Albulescu <cosmin@albulescu.ro>"
+  ],
+  "description": "Angular drag and drop module",
+  "main": "ca-drag.js",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "drag",
+    "drop"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/albulescu/caDrag",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "client/bower_components",
+    "test",
+    "tests"
+  ]
+}
