@@ -3,7 +3,7 @@ Drag &amp; Drop Module for AngularJs
 
 Installation
 --
-```bower install ca-drag --save```
+```bower install angular-ca-drag --save```
 
 Services
 --
