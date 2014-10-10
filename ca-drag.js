@@ -28,7 +28,6 @@ angular.module('caDrag', [])
 
     var onDragStart = function( event ) {
         _active = this;
-        console.log(this);
         $timeout(function(){
             _dragging = true;
         });
