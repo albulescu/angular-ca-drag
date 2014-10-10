@@ -1,7 +1,14 @@
+/**
+ * Drag & Drop AngularJS Module
+ * https://github.com/albulescu/caDrag
+ *
+ * Author Albulescu Cosmin <cosmin@albulescu.ro>
+ * Licensed under the MIT license.
+ */
+
 'use strict'
 
 angular.module('caDrag', [])
-
 
 .service('DragManager', function( $document, $timeout, DraggableElement ){
 
@@ -460,21 +467,7 @@ angular.module('caDrag', [])
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
-            DragManager.addDropTarget( element, scope );
+            DragManager.addDropTarget( element, scope, angular.noop );
         }
     }
 });
-
-/*
-.directive('caDragMultiple', function(){})
-
-.directive('caDragDragging', function(){})
-
-.directive('caDragDrop', function(){})
-
-
-
-
-<a ca-drag-multiple ca-drag-enabled ca-drop-enabled ca-drag-data="data" ca-drag-start="onDrag($event)" ca-drag-drop="onDrop($event)">Drag</a>
-
-*/
