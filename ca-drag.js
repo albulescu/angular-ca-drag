@@ -82,7 +82,7 @@ angular.module('caDrag', [])
                     //get callback
                     var over = _dropzone.data('ca-drop-over') || angular.noop;
                     //trigger drop over
-                    over( _dropzone.data('ca-drop-scope'), { $event : _active.event('drop.over', event) });
+                    over( _dropzone.data('ca-drop-scope'), { $event : _active.event('drop.over', event.originalEvent) });
                 }
             }
         };
@@ -121,6 +121,7 @@ angular.module('caDrag', [])
             $timeout(function(){ _dragging = false; });
 
             if(!_dropzone) {
+                _active = null;
                 return;
             }
             
@@ -157,7 +158,7 @@ angular.module('caDrag', [])
             var complete = _dropzone.data('ca-drop-complete') || angular.noop;     
 
             //do callback
-            complete( scope, { $event : _active.event('drop', event), $drop : _dropzone });
+            complete( scope, { $event : _active.event('drop.complete', event.originalEvent), $drop : _dropzone });
 
             _active = null;
         };
