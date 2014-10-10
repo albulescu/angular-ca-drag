@@ -126,10 +126,8 @@ angular.module('caDrag', [])
             }
             
             if( !event.isDefaultPrevented() ){
-                //highlight drop zone
-                _dropzone.css('border','none');
                 //remove dragging element from his original place
-                var element = event.element.detach();
+                var element = event.element.remove();
                 //attach element to the drop zone
                 _dropzone.append(element);
             }
@@ -217,7 +215,8 @@ angular.module('caDrag', [])
                 }
 
                 //add handlers to drop zone
-                element.hover(onDropTargetOver, onDropTargetOut)
+                element.on('mouseover',onDropTargetOver);
+                element.on('mouseout', onDropTargetOut);
 
                 //save drop target object
                 _targets.push(element);
@@ -332,14 +331,17 @@ angular.module('caDrag', [])
 
         var createIndicator = function() {
             var img = _element.find('img');
+
             _indicator = img.clone();
-            _indicator.width(img.width());
-            _indicator.height(img.height());
+
             _indicator.css({
                 opacity: '.6',
+                'width' : img.prop('offsetWidth') + 'px',
+                'height' : img.prop('offsetHeight') + 'px',
                 '-ms-transform': 'scale(.9,.9)',
                 '-webkit-transform': 'scale(.9,.9)',
                 'transform': 'scale(.9,.9)',
+                'cursor': 'move',
                 'pointer-events': 'none'
             });
             $body.append(_indicator);
@@ -351,12 +353,16 @@ angular.module('caDrag', [])
 
             _startEvent = event;
 
-            _offset = _element.offset();  
+            _offset = {
+                left : _element.prop('offsetLeft'),  
+                top : _element.prop('offsetTop'),  
+            }
             
             _indicator.css({
                 position:'absolute',
-                left : _offset.left,
-                top : _offset.top,
+                float:'none',
+                left : _offset.left + 'px',
+                top : _offset.top + 'px',
                 zIndex: '10000'
             });
         };
@@ -367,8 +373,8 @@ angular.module('caDrag', [])
             var y = _startEvent.pageY - event.pageY;
 
             _indicator.css({
-                left : _offset.left - x,
-                top : _offset.top - y,
+                left : (_offset.left - x) + 'px',
+                top : (_offset.top - y) + 'px',
             });
         };
 
@@ -387,8 +393,6 @@ angular.module('caDrag', [])
             var _self = this;
 
             var onMouseUp = function(event) {
-
-                event.preventDefault();
                 
                 clearTimeout(_startIntv);
                 
