@@ -11,10 +11,11 @@
   ],
   "keywords": [
     "drag",
-    "drop"
+    "drop",
+    "angular"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/albulescu/caDrag",
+  "homepage": "https://github.com/albulescu/angular-ca-drag",
   "ignore": [
     "**/.*",
     "node_modules",
