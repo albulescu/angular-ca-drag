@@ -124,17 +124,21 @@ angular.module('caDrag', [])
                 _active = null;
                 return;
             }
-            
+
+            var dropModel = _dropzone.attr('ca-drop-model');
+            //get the scope model to update
+            var scope = _dropzone.data('ca-drop-scope');
+            // callback call  
+            var complete = _dropzone.data('ca-drop-complete') || angular.noop;     
+            //do callback
+            complete( scope, { $event : event });
+
             if( !event.isDefaultPrevented() ){
                 //remove dragging element from his original place
                 var element = event.element.remove();
                 //attach element to the drop zone
                 _dropzone.append(element);
             }
-
-            var dropModel = _dropzone.attr('ca-drop-model');
-            //get the scope model to update
-            var scope = _dropzone.data('ca-drop-scope');
 
             if( dropModel )
             {
@@ -151,12 +155,6 @@ angular.module('caDrag', [])
                     }
                 }
             }
-
-            // callback call  
-            var complete = _dropzone.data('ca-drop-complete') || angular.noop;     
-
-            //do callback
-            complete( scope, { $event : _active.event('drop.complete', event.originalEvent), $drop : _dropzone });
 
             _active = null;
         };
@@ -277,28 +275,61 @@ angular.module('caDrag', [])
  */
 .service('DraggableElement', function( $document ){
 
+    var returnTrue = function() {
+        return true;
+    };
+    
+    var returnFalse = function() {
+        return false;
+    };
+
     /**
      * Event class used to dispatch to events to the outside
      * @param {string} type   The event type
      * @param {DraggableElement}
      * @param {MouseEvent}
      */
-    var DragEvent = function( type, target, event ) {
+    var DragEvent = function( type, target, original ) {
         this.type = type;
         this.target = target;
         this.element = target.element;
-        this.originalEvent = event;
+        this.originalEvent = original;
     };
 
     DragEvent.prototype = {
-        stopPropagation : function(){
-            return this.originalEvent.stopPropagation();
+        constructor: DragEvent,
+        isDefaultPrevented: returnFalse,
+        isPropagationStopped: returnFalse,
+        isImmediatePropagationStopped: returnFalse,
+
+        preventDefault: function() {
+            var e = this.originalEvent;
+
+            this.isDefaultPrevented = returnTrue;
+
+            if ( e && e.preventDefault ) {
+                e.preventDefault();
+            }
         },
-        preventDefault : function(){ 
-            this.originalEvent.preventDefault();
+        stopPropagation: function() {
+            var e = this.originalEvent;
+
+            this.isPropagationStopped = returnTrue;
+
+            if ( e && e.stopPropagation ) {
+                e.stopPropagation();
+            }
         },
-        isDefaultPrevented : function(){ 
-            return this.originalEvent.isDefaultPrevented();
+        stopImmediatePropagation: function() {
+            var e = this.originalEvent;
+
+            this.isImmediatePropagationStopped = returnTrue;
+
+            if ( e && e.stopImmediatePropagation ) {
+                e.stopImmediatePropagation();
+            }
+
+            this.stopPropagation();
         }
     };
 
@@ -360,6 +391,7 @@ angular.module('caDrag', [])
             
             _indicator.css({
                 position:'absolute',
+                cursor:'move',
                 float:'none',
                 left : _offset.left + 'px',
                 top : _offset.top + 'px',
