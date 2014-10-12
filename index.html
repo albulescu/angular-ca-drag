@@ -14,56 +14,131 @@
   </head>
   <body>
     <div class="wrapper">
-      <header>
-        <h1>angular-ca-drag</h1>
-        <p>AngularJS Drag &amp; Drop Module</p>
+        <h1>
+        <a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Drag &amp; Drop Module for AngularJS</h1>
 
-        <p class="view"><a href="https://github.com/albulescu/angular-ca-drag">View the Project on GitHub <small>albulescu/angular-ca-drag</small></a></p>
+        <p><a href="https://github.com/albulescu/angular-ca-drag" target="_blank">angular-ca-drag</a> is a drag and drop module for <a href="https://angularjs.org/" target="_blank">AngularJS</a>. </p>
 
+        <h2></a>Features</h2>
 
-        <ul>
-          <li><a href="https://github.com/albulescu/angular-ca-drag/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/albulescu/angular-ca-drag/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/albulescu/angular-ca-drag">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <p>
+        <ol>
+          <li>Basic drag and drop functionality</li>
+          <li>Group drag items and drop target by keys</li>
+          <li>Data to send over the drag events</li>
+          <li>Custom callbacks for each drag event</li>
+          <li>Cloned and custom drag indicator</li>
+          <li>Drag feedback to specify if drop allowed or not</li>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+        </ol>
+        </p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+        <h2></a>Api</h2>
+        <br/>
+        <table>
+          <tr>
+            <td width="300px" valign="top" align="right"><h3>Service</h3></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>DragManager</strong></td>
+            <td>
+              <p>Register drag elements, drop targets and handles the drop, feedback and other features</p>
+              <table>
+                <tr>
+                  <td valign="top" align="right"><strong>register(element)</strong></td>
+                  <td>Register drag elements, drop targets and handles the drop, feedback and other features</td>
+                </tr>
+                <tr>
+                  <td valign="top" align="right"><strong>addDropTarget(element, scope, over, complete)</strong></td>
+                  <td>A decorator for dom element. Enable simple drag functionality</td>
+                </tr>
+                <tr>
+                  <td valign="top" align="right"><strong>dragging</strong></td>
+                  <td>Property that indicating the dragging is active</td>
+                </tr>
+                <tr>
+                  <td valign="top" align="right"><strong>active</strong></td>
+                  <td>Active dragging element</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>DraggableElement</strong></td>
+            <td>A decorator for dom element. Enable simple drag functionality</td>
+          </tr>
+        </table>
+        <br/>
+        <table>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+          <tr>
+            <td width="30%" valign="top" align="right"><h3>Directive</h3></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drag-enabled</strong></td>
+            <td>Enable elment dragging</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drag-data</strong></td>
+            <td>Data from current scope to send it with events</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drag-type</strong></td>
+            <td>Specify the type of current dragging element. This is used when you drag multiple types in one page. Also you can specify on drop targets the ca-drop-type directive.</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drop-type</strong></td>
+            <td>Specify what kind of draggable elements this drop target will accept</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drag-clone</strong></td>
+            <td>The indicator to show when drag an element. By default an image is cloned from original element </td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drop-accept</strong></td>
+            <td>Register this element as drop zone</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drag-begin</strong><sup>(event)</sup></td>
+            <td>Event fired when dragging is started</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drag-move</strong><sup>(event)</sup></td>
+            <td>Event fired when dragging</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drag-complete</strong><sup>(event)</sup></td>
+            <td>Event fired when dragging is completed</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drop-complete</strong><sup>(event)</sup></td>
+            <td>Add this to drop target and it will be fired when a draggable element is dropped</td>
+          </tr>
+          <tr>
+            <td valign="top" align="right"><strong>ca-drop-over</strong><sup>(event)</sup></td>
+            <td>Add this to drop target and it will be fired when a draggable element is over the drop target</td>
+          </tr>
+        </table>
+      <br/>
+        <h2>
+        <a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h2>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+        <p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+        <h2>Issues</h2>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+        <p>Having trouble with plugin? Create issue at <a href="https://github.com/albulescu/angular-ca-drag/issues">Github Issues</a>.</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+        <h2>Demo</h2>
+        <p>
+          <a href="demo.html">Simple drag &amp; drop</a>
+        </p>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/albulescu">albulescu</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+        <footer>
+          <p>Maintained by <a href="https://github.com/albulescu">Albulescu Cosmin</a></p>
+        </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
               <script type="text/javascript">
