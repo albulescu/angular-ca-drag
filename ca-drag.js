@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  */
 
-'use strict'
+'use strict';
 
 angular.module('caDrag', [])
 
@@ -37,17 +37,12 @@ angular.module('caDrag', [])
 
     this.$get = ['$document', '$timeout', '$log', 'DraggableElement', 
         function($document,    $timeout, $log,  DraggableElement){
-            /**
-             * Dragging feedback indicator
-             * @type {[type]}
-             */
-        var _feedback = null,
 
             /**
              * Flag indicating that dragging is active
              * @type {Boolean}
              */
-            _dragging = false,
+        var _dragging = false,
             
             /**
              * Registered dragging elements
@@ -79,7 +74,7 @@ angular.module('caDrag', [])
          * Set flags when start dragging to check if
          * we are on a drop zone
          */
-        var onDragStart = function( event ) {
+        var onDragStart = function() {
             _active   = this;
             _dragging = true;
         };
@@ -98,7 +93,7 @@ angular.module('caDrag', [])
                 if( _dropzone )
                 {
                     //get callback
-                    var over = _dropzone.data('ca-drop-over') || angular.noop;
+                    var over = _dropzone.data('ca-drop-hover') || angular.noop;
                     //create event for scope
                     var overEvent = _active.event('drop.over', event.originalEvent);
                     
@@ -117,7 +112,7 @@ angular.module('caDrag', [])
         /**
          * Called when move out from drop zone
          */
-        var onDropTargetOut = function(event) {
+        var onDropTargetOut = function() {
             if( _dropzone ) {
                 _dropzone.removeClass('ca-drag-over');
                 _dropzone = null;
@@ -138,7 +133,7 @@ angular.module('caDrag', [])
                 
                 var target = _targets[i];
 
-                if( element[0] == target[0]) {
+                if( element[0] === target[0]) {
 
                     var dragType = _active.getType();
                     var dropType = target.data('ca-drop-type') || false;
@@ -248,7 +243,7 @@ angular.module('caDrag', [])
 
                 //set drop over function if available
                 if( angular.isFunction(over) ) {
-                    element.data('ca-drop-over', over);
+                    element.data('ca-drop-hover', over);
                 }
 
                 //set drop complete function if available
@@ -316,7 +311,7 @@ angular.module('caDrag', [])
 
                 return draggable;
             },
-        }
+        };
 
         /**
          * Dragging flag getter
@@ -455,7 +450,7 @@ angular.module('caDrag', [])
              */
             _offsetY = 0,
 
-            _type = undefined,
+            _type = null,
 
             _indicatorFactory  = angular.noop,
 
@@ -470,23 +465,14 @@ angular.module('caDrag', [])
              * @type {Boolean}
              */
             _showFeedback = true,
-            /**
-             * Original element size
-             */
-            _size,
-
+            
             /**
              * Specify if indicator is a custom one used with ca-drag-clone
              * @type {Boolean}
              */
-            _custom = false;
+            _custom = false,
 
-        /**
-         * CSSStyleDeclaration
-         */
-        var _style;
-
-        var _startEvent;
+            _startEvent;
 
         var createIndicator = function() {
 
@@ -520,11 +506,13 @@ angular.module('caDrag', [])
 
                 if(img.length)
                 {
-                    var img = img.clone();
+                    img = img.clone();
+
                     img.css({
                         'width' : _element.prop('offsetWidth') + 'px',
                         'height' : _element.prop('offsetHeight') + 'px',
                     });
+
                     _indicator.append( img );
                 }
 
@@ -590,10 +578,11 @@ angular.module('caDrag', [])
                     x = _offset.left - _startEvent.pageX + event.pageX + _offsetX;
                     y = _offset.top - _startEvent.pageY + event.pageY + _offsetY;
                 break;
+                default:
                 case 'corner':
                     x = event.pageX + _offsetX;
                     y = event.pageY + _offsetY;
-                default:
+                    break;
             }
 
             _indicator.css({
@@ -602,7 +591,7 @@ angular.module('caDrag', [])
             });
         };
 
-        var restoreDragging = function( event ) {
+        var restoreDragging = function() {
             if( _indicator ) {
                 _indicator.remove();
             }
@@ -636,7 +625,7 @@ angular.module('caDrag', [])
                 _self.emit('dragging', new DragEvent( 'drag.move', _self, event ));
             };
 
-            element.bind('mouseout', function(event){
+            element.bind('mouseout', function(){
                 if(!_dragging) {
                     clearTimeout(_startIntv);                    
                 }
@@ -655,7 +644,12 @@ angular.module('caDrag', [])
                 
                 $document.bind('touchend mouseup', onMouseUp);
             });
-        }
+
+
+            this.cancel = function() {
+                onMouseUp();
+            };
+        };
 
         DraggableElement.prototype =  {
 
@@ -667,13 +661,13 @@ angular.module('caDrag', [])
 
             off  : function(event, fct){
                 _events = _events || {};
-                if( event in _events === false  )  return;
+                if( event in _events === false  ){ return; }
                 _events[event].splice(_events[event].indexOf(fct), 1);
             },
 
             emit : function(event /* , args... */){
                 _events = _events || {};
-                if( event in _events === false  )  return;
+                if( event in _events === false  ) { return; }
                 for(var i = 0; i < _events[event].length; i++){
                     _events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
                 }
@@ -706,10 +700,6 @@ angular.module('caDrag', [])
 
             event : function(name, original) {
                 return new DragEvent( name, this, original );
-            },
-
-            cancel: function() {
-                onMouseUp();
             },
 
             setFeedback : function( feedback ) {
@@ -770,8 +760,8 @@ angular.module('caDrag', [])
 .directive('caDragEnabled', function( DragManager ){
     return {
         restrict : 'A',
-        link : function(scope, element, attributes) {
-            DragManager.register( element )
+        link : function(scope, element) {
+            DragManager.register( element );
         }
     };
 })
@@ -880,28 +870,28 @@ angular.module('caDrag', [])
 
             element.data('ca-drop-complete', fn );
         }
-    }
+    };
 })
 
 /**
  * Hook for drop over
  */
-.directive('caDropOver', function( $parse, DragManager ){
+.directive('caDropHover', function( $parse, DragManager ){
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
             
             var fn = angular.noop;
 
-            if( attributes.caDropOver ) {
-                fn = $parse(attributes.caDropOver);
+            if( attributes.caDropHover ) {
+                fn = $parse(attributes.caDropHover);
             }
 
             DragManager.addDropTarget( element, scope );
 
-            element.data('ca-drop-over', fn );
+            element.data('ca-drop-hover', fn );
         }
-    }
+    };
 })
 
 /**
@@ -910,8 +900,8 @@ angular.module('caDrag', [])
 .directive('caDropAccept', function( DragManager ){
     return {
         restrict : 'A',
-        link : function( scope, element, attributes ) {
+        link : function( scope, element ) {
             DragManager.addDropTarget( element, scope );
         }
-    }
+    };
 });
