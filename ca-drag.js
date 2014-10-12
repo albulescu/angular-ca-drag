@@ -636,7 +636,7 @@ angular.module('caDrag', [])
                 _self.emit('dragging', new DragEvent( 'drag.move', _self, event ));
             };
 
-            element.bind('touchstart mouseout', function(event){
+            element.bind('mouseout', function(event){
                 if(!_dragging) {
                     clearTimeout(_startIntv);                    
                 }
