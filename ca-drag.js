@@ -130,9 +130,22 @@ angular.module('caDrag', [])
          */
         var dropZoneByElement = function( element ) {
 
+            element = angular.element(element);
+
             for(var i=0; i < _targets.length; i++) {
-                if( element == _targets[i][0]/*jqLite*/ ) {
-                    return _targets[i];
+                
+                var target = _targets[i];
+
+                if( element[0] == target[0]) {
+
+                    var dragType = _active.element.data('ca-drag-type') || false;
+                    var dropType = target.data('ca-drop-type') || false;
+                    
+                    if( (dragType||dropType) && dragType !== dropType ) {
+                        return null;
+                    }
+
+                    return target;
                 }
             }
 
@@ -614,7 +627,7 @@ angular.module('caDrag', [])
                 _events[event] = _events[event]   || [];
                 _events[event].push(fct);
             },
-            
+
             off  : function(event, fct){
                 _events = _events || {};
                 if( event in _events === false  )  return;
@@ -683,6 +696,11 @@ angular.module('caDrag', [])
     return DraggableElementWrapper;
 })
 
+/**
+ * Direcrive to specify data to keep in drag event.
+ * This will automatically convert the element to 
+ * draggable element.
+ */
 .directive('caDragData', function( DragManager ){
     return {
         restrict : 'A',
@@ -697,6 +715,9 @@ angular.module('caDrag', [])
     };
 })
 
+/**
+ * Enable dragging of the element
+ */
 .directive('caDragEnabled', function( DragManager ){
     return {
         restrict : 'A',
@@ -710,7 +731,8 @@ angular.module('caDrag', [])
     return {
         restrict : 'A',
         link : function(scope, element, attributes) {
-            DragManager.register(element).data('ca-drag-type', attributes.caDragType );
+            DragManager.register(element)
+            element.data('ca-drag-type', attributes.caDragType );
         }
     };
 })
