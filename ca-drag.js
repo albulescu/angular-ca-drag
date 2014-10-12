@@ -67,6 +67,8 @@ angular.module('caDrag', [])
              */
             _active   = null,
 
+            _indicators = false,
+
             /**
              * Current drop zone
              * @type {Object}
@@ -137,8 +139,10 @@ angular.module('caDrag', [])
                 var target = _targets[i];
 
                 if( element[0] == target[0]) {
-
-                    var dragType = _active.element.data('ca-drag-type') || false;
+                    if(!_active){
+                        debugger;
+                    }
+                    var dragType = _active.getType();
                     var dropType = target.data('ca-drop-type') || false;
                     
                     if( (dragType||dropType) && dragType !== dropType ) {
@@ -200,6 +204,15 @@ angular.module('caDrag', [])
             _active = null;
         };
 
+        var indicatorFactory = function( type ) {
+
+            if( angular.isDefined( _indicators[type] )) {
+                return angular.element(_indicators[type] );
+            }
+
+            return angular.element( _indicators['default'] );
+        };
+
         var DragManager = {
 
             /**
@@ -254,6 +267,20 @@ angular.module('caDrag', [])
             },
 
             /**
+             * Register new dragging indicator
+             */
+            registerIndicator : function( html, type ) {
+
+                if( angular.isDefined( _indicators[type || 'default'] ) ) {
+                    throw new Error('This indicator already registered');
+                }
+
+                _indicators = _indicators  || {};
+
+                _indicators[ type || 'default' ] = html;
+            },
+
+            /**
              * Create draggable element
              * @param  Dom element
              * @return DraggableElement
@@ -269,6 +296,12 @@ angular.module('caDrag', [])
 
                 //create draggable element from dom element
                 draggable = new DraggableElement(element);
+
+                draggable.setType( element.attr('ca-drag-type') );
+
+                if( _indicators ) {
+                    draggable.setIndicatorFactory( indicatorFactory );
+                }
 
                 draggable.setDragOffset.apply(draggable, options.dragOffset);
                 draggable.setDragPosition( options.dragPosition );
@@ -309,7 +342,7 @@ angular.module('caDrag', [])
 /**
  * DragElement
  */
-.service('DraggableElement', function( $rootScope, $document, $compile ){
+.service('DraggableElement', function( $rootScope, $timeout, $document, $compile ){
 
     var returnTrue = function() {
         return true;
@@ -424,6 +457,10 @@ angular.module('caDrag', [])
              */
             _offsetY = 0,
 
+            _type = undefined,
+
+            _indicatorFactory  = angular.noop,
+
             /**
              * Drag indicator position
              * @type {String}
@@ -453,27 +490,28 @@ angular.module('caDrag', [])
 
         var _startEvent;
 
-        var createClone = function() {
+        var createIndicator = function() {
 
-            var clone = _element.attr('ca-drag-clone');
+            var indicator = _indicatorFactory( _type );
 
-            if( angular.isDefined(clone) ) {
-                clone = angular.element( '#' + clone );
+            if( angular.isDefined(indicator) ) {
                 _custom = true;
             }
 
-            if( _custom && clone )
+            if( _custom && indicator )
             {
-                var scope = $rootScope.$new();
-                
-                //set data to the scope
-                angular.forEach(_data, function(value, key){
-                    scope[key]=value;
+                var scope = $rootScope.$new(true);
+
+                $compile(indicator)(scope);
+
+                scope.$apply(function(){
+                    //set data to the scope
+                    angular.forEach(_data, function(value, key){
+                        scope[key]=value;
+                    });
                 });
 
-                $compile(clone)(scope);
-                scope.$apply();
-                _indicator = clone;
+                _indicator = indicator;
                 _indicator.show();
             }
             else
@@ -526,15 +564,15 @@ angular.module('caDrag', [])
 
         var prepareForDragging = function( event ) {
             
-            createClone();
+            createIndicator();
 
             _startEvent = event;
 
             _offset = getOffset(_element[0]);
 
-            console.log(_offset);
-            
-            updateMovePosition(event);
+            $timeout(function(){
+                updateMovePosition(event);
+            });
         };
 
         var updateMovePosition = function( event ) {
@@ -568,11 +606,7 @@ angular.module('caDrag', [])
 
         var restoreDragging = function( event ) {
             if( _indicator ) {
-                if( _custom ) {
-                    _indicator.hide();
-                } else {
-                    _indicator.remove();
-                }
+                _indicator.remove();
             }
         };
 
@@ -604,6 +638,11 @@ angular.module('caDrag', [])
                 _self.emit('dragging', new DragEvent( 'drag.move', _self, event ));
             };
 
+            element.bind('touchstart mouseout', function(event){
+                if(!_dragging) {
+                    clearTimeout(_startIntv);                    
+                }
+            });
 
             element.bind('touchstart mousedown', function(event){
 
@@ -653,6 +692,18 @@ angular.module('caDrag', [])
 
             showFeedback : function( show ) {
                 _showFeedback = show;
+            },
+
+            setType : function( type ) {
+                _type = type;
+            },
+
+            getType : function() {
+                return _type;
+            },
+
+            setIndicatorFactory : function( func ) {
+                _indicatorFactory = func;
             },
 
             event : function(name, original) {
@@ -727,16 +778,6 @@ angular.module('caDrag', [])
     };
 })
 
-.directive('caDragType', function( DragManager ){
-    return {
-        restrict : 'A',
-        link : function(scope, element, attributes) {
-            DragManager.register(element)
-            element.data('ca-drag-type', attributes.caDragType );
-        }
-    };
-})
-
 .directive('caDropType', function( DragManager ){
     return {
         restrict : 'A',
@@ -747,11 +788,18 @@ angular.module('caDrag', [])
     };
 })
 
-.directive('caDragClone', function( DragManager ){
+.directive('caDragIndicator', function( DragManager ){
     return {
         restrict : 'A',
-        link : function(scope, element, attributes) {
-            element.data('ca-drag-clone', attributes.caDragClone );
+        compile: function(element, attributes) {
+            //remove attribute to avoid recursive compiling
+            element.attr('ca-drag-indicator', null);
+            //get indicator html
+            var container = angular.element('<div>').append(element);
+            //register in drag manager
+            DragManager.registerIndicator(container.html(), attributes.caDragIndicator);
+            //remove it from dom
+            element.remove();
         }
     };
 })
