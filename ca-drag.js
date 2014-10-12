@@ -139,9 +139,7 @@ angular.module('caDrag', [])
                 var target = _targets[i];
 
                 if( element[0] == target[0]) {
-                    if(!_active){
-                        debugger;
-                    }
+
                     var dragType = _active.getType();
                     var dropType = target.data('ca-drop-type') || false;
                     
