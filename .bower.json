@@ -5,16 +5,7 @@
     "Cosmin Albulescu <cosmin@albulescu.ro>"
   ],
   "description": "Angular drag and drop module",
-  "main": [
-    "ca-drag.js",
-    "ca-drag.css"
-  ],
-  "scripts": [
-    "ca-drag.js"
-  ],
-  "styles": [
-    "ca-drag.css"
-  ],
+  "main": "ca-drag.js",
   "moduleType": [
     "globals"
   ],
@@ -32,5 +23,14 @@
     "client/bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "_release": "1.1.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.1.1",
+    "commit": "3de049296d84e1454f36f3874ee8e9851c6038b4"
+  },
+  "_source": "git://github.com/albulescu/angular-ca-drag.git",
+  "_target": "~1.1.1",
+  "_originalSource": "angular-ca-drag"
 }
