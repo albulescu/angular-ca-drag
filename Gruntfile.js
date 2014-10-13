@@ -82,7 +82,6 @@ module.exports = function(grunt) {
                 options: {
                     position: 'top',
                     banner: banner,
-                    linebreak: true
                 },
                 files: {
                     src: ['ca-drag.min.js']
