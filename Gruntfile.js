@@ -53,7 +53,7 @@ module.exports = function(grunt) {
                 },
             },
             dist: {
-                src: ['src/manager.js', 'src/draggable.js', 'src/directives.js'],
+                src: ['src/manager.js', 'src/draggable.js', 'src/directives.js', 'src/util.js'],
                 dest: 'ca-drag.js',
             },
         },
@@ -97,7 +97,6 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('build', [
-        'jshint:source',
         'clean:tmp',
         'concat',
         'ngAnnotate',
@@ -106,10 +105,12 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('start', [
+        'build',
         'watch',
     ]);
 
     grunt.registerTask('default', [
+        'jshint:source',
         'build',
     ]);
 };
