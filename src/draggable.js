@@ -13,7 +13,7 @@ angular.module('caDrag')
 /**
  * DragElement
  */
-.service('DraggableElement', function( $rootScope, $timeout, $document, $compile ){
+.service('DraggableElement', function( $rootScope, $timeout, $document, $compile, DragUtil ){
 
     var returnTrue = function() {
         return true;
@@ -288,22 +288,25 @@ angular.module('caDrag')
 
             var x=0, y=0;
 
+            var pointerPos = DragUtil.getEventPosition(event);
+            var startPosition = DragUtil.getEventPosition(_startEvent);
+
             var indicatorProps = getOffset(_indicator[0]);
 
             switch( _dragPosition )
             {
                 case 'center':
-                    x = event.pageX + _offsetX - ( indicatorProps.width / 2 );
-                    y = event.pageY + _offsetY - ( indicatorProps.height / 2 );
+                    x = pointerPos.x + _offsetX - ( indicatorProps.width / 2 );
+                    y = pointerPos.y + _offsetY - ( indicatorProps.height / 2 );
                 break;
                 case 'clone':
-                    x = _offset.left - _startEvent.pageX + event.pageX + _offsetX;
-                    y = _offset.top - _startEvent.pageY + event.pageY + _offsetY;
+                    x = _offset.left - startPosition.x + pointerPos.x + _offsetX;
+                    y = _offset.top - startPosition.y + pointerPos.y + _offsetY;
                 break;
                 default:
                 case 'corner':
-                    x = event.pageX + _offsetX;
-                    y = event.pageY + _offsetY;
+                    x = pointerPos.x + _offsetX;
+                    y = pointerPos.y + _offsetY;
                     break;
             }
 
@@ -322,8 +325,6 @@ angular.module('caDrag')
         var DraggableElement = function( element ){
             
             _element = element;
-
-            element.attr('dragging', 'false');
 
             var _self = this;
 
