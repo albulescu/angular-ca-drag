@@ -53,8 +53,7 @@ angular.module('caDrag', [])
     this.$get = ['$document', '$timeout', '$log', 'DraggableElement', 'DragUtil',
         function($document, $timeout, $log, DraggableElement, DragUtil) {
 
-            var forEach = angular.forEach,
-                isDefined = angular.isDefined;
+            var forEach = angular.forEach;
             /**
              * Flag indicating that dragging is active
              * @type {Boolean}
