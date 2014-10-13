@@ -4,8 +4,23 @@ angular.module('dragging',['caDrag'])
     DragManagerProvider.setDragPosition('corner')
 })
 
-.controller('test', function($scope, DragManager){
+.directive('console', function(){
+    return {
+        restrict : 'C',
+        scope : true,
+        link: function(scope, element) {
+            scope.$watch('messages', function(){
+                console.log('msg change');
+                element[0].scrollTop = element[0].scrollHeight;
+            });
+        }
+    };
+})
+
+.controller('test1', function($scope, DragManager){
     
+    $scope.messages = [];
+
     $scope.man = [
         {name:'Alexander', age:21},
         {name:'Eduardo', age:21},
@@ -22,6 +37,13 @@ angular.module('dragging',['caDrag'])
         {name:'Kelly',age:14}    
     ];
     
+    $scope.log = function( msg ) {
+        $scope.messages.push({
+            text : msg,
+            time : Date.now()
+        });
+    };
+
     $scope.checkAge = function( event ) {
         if( event.target.data.age < 18 ) {
             event.preventDefault(); 
@@ -32,18 +54,22 @@ angular.module('dragging',['caDrag'])
     $scope.onManDrop = function(event) {
         
         if(event.target.data.age < 18) {
+            this.log(event.target.data.name + ' is under 18, deny adding');
             return event.preventDefault();
         }
         
-        alert('Drop man:' + event.target.data.name);
+        this.log('Drop man: ' + event.target.data.name);
+        this.log(event.target.data);
     };
     
     $scope.onWomanDrop = function(event) {
         
         if(event.target.data.age < 18) {
+            this.log(event.target.data.name + ' is under 18, deny adding');
             return event.preventDefault();
         }
         
-        alert('Drop womman:' + event.target.data.name);
+        this.log('Drop woman: ' + event.target.data.name);
+        this.log(event.target.data);
     };
 });

@@ -14,20 +14,34 @@
   <script src="../ca-drag.js"></script>
   <script src="scripts.js"></script>
 </head>
-<body ng-app="dragging" ng-controller="test">
-    <div class="draggables">
-        <div ca-drag-type="man" ca-drag-data="item" ca-drag-enabled class="box man" ng-repeat="item in man">{{item.name}}</div>
-        <div ca-drag-type="woman" ca-drag-data="item" ca-drag-enabled class="box woman" ng-repeat="item in woman">{{item.name}}</div>
+<body ng-app="dragging">
+
+    <h1>Angular Drag &amp; Drop Demo</h1>
+
+    <div class="demobox" ng-controller="test1">
+      <h2>Custom indicators</h2>
+      <div class="body clearfix">
+        <div class="draggables">
+          <div ca-drag-type="man" ca-drag-data="item" ca-drag-enabled class="box man" ng-repeat="item in man">{{item.name}}</div>
+              <div ca-drag-type="woman" ca-drag-data="item" ca-drag-enabled class="box woman" ng-repeat="item in woman">{{item.name}}</div>
+        </div>
+        <div class="droppable">
+            <div ca-drop-type="man" ca-drop-hover="checkAge($event)" ca-drop-complete="onManDrop($event)" class="drop man"></div>
+            <div ca-drop-type="woman" ca-drop-hover="checkAge($event)" ca-drop-complete="onWomanDrop($event)" class="drop woman"></div>
+        </div>
+        <div ca-drag-indicator="man" class="dragbox man">
+            <span>Man:{{name}}</span>
+            <strong ng-show="age<18">( Under 18 )</strong>
+        </div>
+        <div ca-drag-indicator="woman" class="dragbox woman">
+            <span>Woman:{{name}}</span>
+            <strong ng-show="age<18">( Under 18 )</strong>
+        </div>
+      </div>
+      <div class="console">
+        <span class="message" ng-repeat="message in messages">{{message.text}}</span>
+      </div>
     </div>
-    <div class="droppable">
-        <div ca-drop-type="man" ca-drop-hover="checkAge($event)" ca-drop-complete="onManDrop($event)" class="drop man"></div>
-        <div ca-drop-type="woman" ca-drop-hover="checkAge($event)" ca-drop-complete="onWomanDrop($event)" class="drop woman"></div>
-    </div>
-    <div ca-drag-indicator="man" class="dragbox man">
-        <span>Man:{{name}}</span>
-    </div>
-    <div ca-drag-indicator="woman" class="dragbox woman">
-        <span>Woman:{{name}}</span>
-    </div>
+    
 </body>
 </html>
