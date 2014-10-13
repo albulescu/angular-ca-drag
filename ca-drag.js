@@ -10,7 +10,7 @@
 
 angular.module('caDrag',[])
 
-.provider('DragManager', function(  ){
+.provider('DragManager', function(){
 
     var options = {
         showFeedback : true,
@@ -50,9 +50,11 @@ angular.module('caDrag',[])
         options.indicatorFactory = func;
     };
 
-    this.$get = ['$document', '$timeout', '$log', 'DraggableElement', 
-        function($document,    $timeout, $log,  DraggableElement){
+    this.$get = ['$document', '$timeout', '$log', 'DraggableElement', 'DragUtil',
+        function($document,    $timeout, $log,  DraggableElement, DragUtil){
 
+        var forEach = angular.forEach,
+            isDefined = angular.isDefined;
             /**
              * Flag indicating that dragging is active
              * @type {Boolean}
@@ -94,32 +96,70 @@ angular.module('caDrag',[])
             _dragging = true;
         };
 
+        var dropZoneHover = function() {
+
+             //get callback
+            var over = _dropzone.data('ca-drop-hover') || angular.noop;
+            //create event for scope
+            var overEvent = _active.event('drop.over', event.originalEvent);
+            
+            //trigger drop over
+            over( _dropzone.data('ca-drop-scope'), {$event:overEvent});
+            //add class to highlight drop zone
+            _dropzone.addClass('ca-drag-over');
+
+            if( overEvent.isDefaultPrevented() === false ) {
+                _active.setFeedback('accept');
+            }
+        };
+
+        var onDragMove = function( event ) {
+
+            var target;
+            var pos = DragUtil.getEventPosition( event );
+            
+            forEach(_targets, function(item){
+                var rect = item[0].getBoundingClientRect();
+                if( rect.left < pos.x && rect.right > pos.x && 
+                    rect.top < pos.y && rect.bottom > pos.y )
+                {
+                    target = item;
+                    return true;
+                }
+            });
+            
+            if( target) {
+
+                var dragType = _active.getType();
+                var dropType = target.data('ca-drop-type') || false;
+
+                if( dragType !== dropType ) {
+                    return;
+                }
+
+                if(!_dropzone) {
+                    _dropzone = target;
+                    dropZoneHover( event );
+                }
+
+            } else {
+                onDropTargetOut();
+            }
+        };
+
         /**
          * If dragging active search if current hover element
          * is a drop zone.
          */
-        var onDropTargetOver = function( event ) {
+        var onDropTargetHover = function( event ) {
 
             if( _dragging ) {
                 
                 //search drop zone by current hover element
                 _dropzone = dropZoneByElement( event.currentTarget );
 
-                if( _dropzone )
-                {
-                    //get callback
-                    var over = _dropzone.data('ca-drop-hover') || angular.noop;
-                    //create event for scope
-                    var overEvent = _active.event('drop.over', event.originalEvent);
-                    
-                    //trigger drop over
-                    over( _dropzone.data('ca-drop-scope'), {$event:overEvent});
-                    //add class to highlight drop zone
-                    _dropzone.addClass('ca-drag-over');
-
-                    if( overEvent.isDefaultPrevented() === false ) {
-                        _active.setFeedback('accept');
-                    }
+                if( _dropzone ) {
+                   dropZoneHover( event );
                 }
             }
         };
@@ -214,11 +254,17 @@ angular.module('caDrag',[])
 
         var indicatorFactory = function( type ) {
 
+            var indicator;
+
             if( angular.isDefined( _indicators[type] )) {
-                return angular.element(_indicators[type] );
+                indicator = angular.element(_indicators[type] );
+            } else {
+                indicator = angular.element( _indicators['default'] );
             }
 
-            return angular.element( _indicators['default'] );
+            indicator.css('pointer-events','none');
+
+            return indicator;
         };
 
         var DragManager = {
@@ -246,6 +292,10 @@ angular.module('caDrag',[])
              */
             addDropTarget : function( element, scope, over, complete ){
 
+                if( _targets.indexOf(element) !== -1 ) {
+                    return;
+                }
+
                 var dropzone = element.data('ca-drap-scope');
 
                 //Skip if element is already decorated with dragging class
@@ -266,9 +316,11 @@ angular.module('caDrag',[])
                     element.data('ca-drop-complete', complete);
                 }
 
-                //add handlers to drop zone
-                element.on('mouseover',onDropTargetOver);
-                element.on('mouseout', onDropTargetOut);
+                if( !DragUtil.isMobile() ) {
+                    //add handlers to drop zone
+                    element.on('mouseover',onDropTargetHover);
+                    element.on('mouseout', onDropTargetOut);
+                }
 
                 //save drop target object
                 _targets.push(element);
@@ -319,6 +371,10 @@ angular.module('caDrag',[])
                 //add handlers for drag manager for drop functionality
                 draggable.on('start', onDragStart);
                 draggable.on('complete', onDragComplete);
+                
+                if( DragUtil.isMobile() ) {
+                    draggable.on('dragging', onDragMove);
+                }
 
                 //add drag decorator as data to current element
                 element.data('ca-drag', draggable);
@@ -353,7 +409,7 @@ angular.module('caDrag')
 /**
  * DragElement
  */
-.service('DraggableElement', ["$rootScope", "$timeout", "$document", "$compile", function( $rootScope, $timeout, $document, $compile ){
+.service('DraggableElement', ["$rootScope", "$timeout", "$document", "$compile", "DragUtil", function( $rootScope, $timeout, $document, $compile, DragUtil ){
 
     var returnTrue = function() {
         return true;
@@ -628,22 +684,25 @@ angular.module('caDrag')
 
             var x=0, y=0;
 
+            var pointerPos = DragUtil.getEventPosition(event);
+            var startPosition = DragUtil.getEventPosition(_startEvent);
+
             var indicatorProps = getOffset(_indicator[0]);
 
             switch( _dragPosition )
             {
                 case 'center':
-                    x = event.pageX + _offsetX - ( indicatorProps.width / 2 );
-                    y = event.pageY + _offsetY - ( indicatorProps.height / 2 );
+                    x = pointerPos.x + _offsetX - ( indicatorProps.width / 2 );
+                    y = pointerPos.y + _offsetY - ( indicatorProps.height / 2 );
                 break;
                 case 'clone':
-                    x = _offset.left - _startEvent.pageX + event.pageX + _offsetX;
-                    y = _offset.top - _startEvent.pageY + event.pageY + _offsetY;
+                    x = _offset.left - startPosition.x + pointerPos.x + _offsetX;
+                    y = _offset.top - startPosition.y + pointerPos.y + _offsetY;
                 break;
                 default:
                 case 'corner':
-                    x = event.pageX + _offsetX;
-                    y = event.pageY + _offsetY;
+                    x = pointerPos.x + _offsetX;
+                    y = pointerPos.y + _offsetY;
                     break;
             }
 
@@ -662,8 +721,6 @@ angular.module('caDrag')
         var DraggableElement = function( element ){
             
             _element = element;
-
-            element.attr('dragging', 'false');
 
             var _self = this;
 
@@ -973,3 +1030,50 @@ angular.module('caDrag')
         }
     };
 }]);
+
+angular.module('caDrag')
+
+.service('DragUtil', function(){
+	
+	/**
+	 * Check if is on mobile
+	 * @return {Boolean}
+	 */
+	this.isMobile = function() {
+		return (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()));
+	};
+
+	/**
+	 * Check if event is over the element
+	 * @param  {Event}  event   MouseEvent or TouchEvent
+	 * @param  {Element}  element Dom element
+	 * @return {Boolean}
+	 */
+	this.isHover = function( event, element ) {
+		console.log(event, element);
+	};
+
+	/**
+	 * Get event position
+	 * @param  {Event} event Touch or mouse event
+	 * @return {Object}      Position
+	 */
+	this.getEventPosition = function( event ) {
+
+		var x=0, y=0;
+
+        if( event instanceof window.TouchEvent) {
+            if( event.touches && event.touches.length ){
+                x = event.touches[0].pageX;
+                y = event.touches[0].pageY;
+            }
+        } else if( angular.isDefined( event.element ) && angular.isDefined(event.originalEvent)) {
+        	return this.getEventPosition( event.originalEvent );
+        } else {
+            x = event.pageX;
+            y = event.pageY;
+        }
+
+        return {'x':x,'y':y};
+	};
+});
