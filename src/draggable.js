@@ -208,7 +208,7 @@ angular.module('caDrag')
                 });
 
                 _indicator = indicator;
-                _indicator.show();
+                _indicator.css('display','block');
 
                 callback();
             }

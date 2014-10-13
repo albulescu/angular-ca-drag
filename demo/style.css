@@ -1,0 +1,53 @@
+.box {
+    display:block;
+    width:100px;
+    text-align:center;
+    color:#fff;
+    padding:5px;
+    margin:3px;
+    -moz-user-select:none;
+    user-select:none;
+    cursor:default;
+}
+
+.man {
+    background:blue;
+}
+
+.woman {
+    background:pink;
+}
+
+.draggables {
+    width:50%;
+    float:left;
+}
+.droppable {
+    width:50%;
+    float:right;
+}
+
+.droppable .drop {
+    width:116px;
+    height:160px;
+    border:1px solid #000;
+    margin-bottom:5px;
+}
+.droppable .man {
+    background:#558AFF;
+}
+.droppable .woman {
+    background:#F9C2CA;
+}
+
+.ca-drag-over {  
+    background:#FFF!important;
+}
+
+.dragbox {
+    padding:10px;
+    color:#FFF;
+    -webkit-box-shadow: 0px 0px 17px -4px rgba(0,0,0,0.75);
+-moz-box-shadow: 0px 0px 17px -4px rgba(0,0,0,0.75);
+box-shadow: 0px 0px 17px -4px rgba(0,0,0,0.75);
+}

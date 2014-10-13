@@ -548,7 +548,7 @@ angular.module('caDrag')
                 });
 
                 _indicator = indicator;
-                _indicator.show();
+                _indicator.css('display','block');
 
                 callback();
             }
@@ -849,7 +849,7 @@ angular.module('caDrag')
         restrict : 'A',
         compile: function(element, attributes) {
             //remove attribute to avoid recursive compiling
-            element.attr('ca-drag-indicator', null);
+            element[0].removeAttribute('ca-drag-indicator');
             //get indicator html
             var container = angular.element('<div>').append(element);
             //register in drag manager

@@ -87,6 +87,11 @@ module.exports = function(grunt) {
                     src: ['ca-drag.min.js']
                 }
             }
+        },
+
+        watch: {
+            files: ['src/*'],
+            tasks: ['build']
         }
 
     });
@@ -98,6 +103,10 @@ module.exports = function(grunt) {
         'ngAnnotate',
         'uglify',
         'usebanner',
+    ]);
+
+    grunt.registerTask('start', [
+        'watch',
     ]);
 
     grunt.registerTask('default', [
