@@ -75,7 +75,7 @@ angular.module('caDrag', [])
     };
 
     this.setIndicatorStyle = function(style) {
-        options.indicatorStyle = style || indicatorStyle;
+        options.indicatorStyle = style || options.indicatorStyle;
     };
 
     this.setIndicatorFactory = function(func) {

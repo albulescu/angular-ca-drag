@@ -161,7 +161,7 @@ angular.module('caDrag')
 
         }
 
-        var createIndicator = function(callback) {
+        var createIndicator = function() {
 
             var factory = (_options.indicatorFactory || angular.noop);
             var indicator = factory(_type);
