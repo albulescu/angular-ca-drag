@@ -81,7 +81,7 @@ angular.module('caDrag')
          * Data for dragging element
          */
         var _data,
-            
+
             _clickEvent,
 
             /**
@@ -112,7 +112,7 @@ angular.module('caDrag')
             /**
              * Starting position of dragging
              */
-            _offset,
+            _rect,
 
             _type = null,
 
@@ -163,10 +163,11 @@ angular.module('caDrag')
 
         var createIndicator = function(callback) {
 
-            var factory = ( _options.indicatorFactory || angular.noop );
-            var indicator = factory( _type );
+            var factory = (_options.indicatorFactory || angular.noop);
+            var indicator = factory(_type);
 
             if (indicator) {
+
                 var scope = $rootScope.$new(true);
 
                 $compile(indicator)(scope);
@@ -178,17 +179,13 @@ angular.module('caDrag')
                     });
                 });
 
-                _indicator = indicator;
-                _indicator.css('display', 'block');
+                indicator.css('display', 'block');
 
-                callback();
             } else {
 
-                _indicator= angular.element('<div>');
+                indicator = angular.element('<div>');
 
                 var clone = _element[0].cloneNode(true);
-
-                var rect = DragUtil.getRect( _element[0] );
 
                 clone.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
 
@@ -198,54 +195,45 @@ angular.module('caDrag')
                 var serialized = new XMLSerializer().serializeToString(clone);
 
                 // Create well formed data URL with our DOM string wrapped in SVG
-                var dataUri = '<svg xmlns="http://www.w3.org/2000/svg" width="' + rect.width + '" height="' + rect.height + '">' +
+                var dataUri = '<svg xmlns="http://www.w3.org/2000/svg" width="' + _rect.width + '" height="' + _rect.height + '">' +
                     '<foreignObject width="100%" height="100%" >' +
                     serialized +
                     '</foreignObject>' +
                     '</svg>';
 
-                _indicator.append(dataUri);
-
-                $body.append(_indicator);
-
-                _indicator.css({
-                    'width': rect.width + 'px',
-                    'height': rect.height + 'px',
-                });
-
-                callback();
+                indicator.append(dataUri);
             }
 
-            _indicator.css({
+            indicator.css({
                 'cursor': 'move',
                 'pointer-events': 'none',
                 'position': 'absolute',
                 'zIndex': '10000'
             });
 
-            _indicator.addClass('ca-drag');
+            indicator.addClass('ca-drag');
 
             if (_options.showFeedback) {
 
                 _feedback = angular.element('<div class="feedback reject"></div>');
 
-                _indicator.append(_feedback);
+                indicator.append(_feedback);
             }
 
-            $body.append(_indicator);
+            $body.append(indicator);
+
+            _indicator = indicator;
         };
 
         var prepareForDragging = function(event) {
 
-            createIndicator(function() {
-                _startEvent = event;
+            _rect = DragUtil.getRect(_element[0]);
 
-                _offset = DragUtil.getRect(_element[0]);
+            _startEvent = event;
 
-                $timeout(function() {
-                    updateMovePosition(event);
-                });
-            });
+            createIndicator();
+
+            updateMovePosition(event);
         };
 
         var updateMovePosition = function(event) {
@@ -253,18 +241,18 @@ angular.module('caDrag')
             var x = 0,
                 y = 0;
 
-            var pointerPos      = DragUtil.getEventPosition(event);
-            var startPosition   = DragUtil.getEventPosition(_startEvent);
-            var indRect         = DragUtil.getRect(_indicator[0]);
+            var pointerPos = DragUtil.getEventPosition(event);
+            var startPosition = DragUtil.getEventPosition(_startEvent);
+            var indRect = DragUtil.getRect(_indicator[0]);
 
-            switch ( _options.dragPosition ) {
+            switch (_options.dragPosition) {
                 case 'center':
                     x = pointerPos.x + _options.dragOffset[0] - (indRect.width / 2);
                     y = pointerPos.y + _options.dragOffset[1] - (indRect.height / 2);
                     break;
                 case 'clone':
-                    x = _offset.left - startPosition.x + pointerPos.x + _options.dragOffset[0];
-                    y = _offset.top - startPosition.y + pointerPos.y + _options.dragOffset[1];
+                    x = _rect.left - startPosition.x + pointerPos.x + _options.dragOffset[0];
+                    y = _rect.top - startPosition.y + pointerPos.y + _options.dragOffset[1];
                     break;
                 default:
                 case 'corner':
