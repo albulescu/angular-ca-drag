@@ -13,12 +13,12 @@ angular.module('caDrag')
 /**
  * DragElement
  */
-.service('DraggableElement', function( $rootScope, $timeout, $document, $compile, DragUtil ){
+.service('DraggableElement', function($rootScope, $timeout, $document, $compile, DragUtil) {
 
     var returnTrue = function() {
         return true;
     };
-    
+
     var returnFalse = function() {
         return false;
     };
@@ -29,7 +29,7 @@ angular.module('caDrag')
      * @param {DraggableElement}
      * @param {MouseEvent}
      */
-    var DragEvent = function( type, target, original ) {
+    var DragEvent = function(type, target, original) {
         this.type = type;
         this.target = target;
         this.element = target.element;
@@ -47,7 +47,7 @@ angular.module('caDrag')
 
             this.isDefaultPrevented = returnTrue;
 
-            if ( e && e.preventDefault ) {
+            if (e && e.preventDefault) {
                 e.preventDefault();
             }
         },
@@ -56,7 +56,7 @@ angular.module('caDrag')
 
             this.isPropagationStopped = returnTrue;
 
-            if ( e && e.stopPropagation ) {
+            if (e && e.stopPropagation) {
                 e.stopPropagation();
             }
         },
@@ -65,7 +65,7 @@ angular.module('caDrag')
 
             this.isImmediatePropagationStopped = returnTrue;
 
-            if ( e && e.stopImmediatePropagation ) {
+            if (e && e.stopImmediatePropagation) {
                 e.stopImmediatePropagation();
             }
 
@@ -75,11 +75,11 @@ angular.module('caDrag')
 
     var $body = $document.find('body');
 
-    var DraggableElementWrapper = function( element ){
+    var DraggableElementWrapper = function(element) {
 
-            /**
-             * Data for dragging element
-             */
+        /**
+         * Data for dragging element
+         */
         var _data,
             /**
              * Interval used to delay drag action
@@ -130,7 +130,7 @@ angular.module('caDrag')
 
             _type = null,
 
-            _indicatorFactory  = angular.noop,
+            _indicatorFactory = angular.noop,
 
             /**
              * Drag indicator position
@@ -143,11 +143,11 @@ angular.module('caDrag')
              * @type {Boolean}
              */
             _showFeedback = true,
-            
+
             _options = {},
 
             _startEvent;
-    
+
 
         var supportsCSSText = getComputedStyle(document.body).cssText !== '';
 
@@ -155,14 +155,14 @@ angular.module('caDrag')
 
             var computedStyle = getComputedStyle(origElem);
 
-            if(supportsCSSText) {
+            if (supportsCSSText) {
                 elem.style.cssText = computedStyle.cssText;
 
             } else {
 
                 // Really, Firefox?
-                for(var prop in computedStyle) {
-                    if(isNaN(parseInt(prop, 10)) && typeof computedStyle[prop] !== 'function' && !(/^(cssText|length|parentRule)$/).test(prop)) {
+                for (var prop in computedStyle) {
+                    if (isNaN(parseInt(prop, 10)) && typeof computedStyle[prop] !== 'function' && !(/^(cssText|length|parentRule)$/).test(prop)) {
                         elem.style[prop] = computedStyle[prop];
                     }
                 }
@@ -189,35 +189,32 @@ angular.module('caDrag')
 
         }
 
-        var createIndicator = function( callback ) {
+        var createIndicator = function(callback) {
 
             //create indicaor from user element
-            var indicator = _indicatorFactory( _type );
+            var indicator = _indicatorFactory(_type);
 
-            if( indicator )
-            {
+            if (indicator) {
                 var scope = $rootScope.$new(true);
 
                 $compile(indicator)(scope);
 
-                scope.$apply(function(){
+                scope.$apply(function() {
                     //set data to the scope
-                    angular.forEach(_data, function(value, key){
-                        scope[key]=value;
+                    angular.forEach(_data, function(value, key) {
+                        scope[key] = value;
                     });
                 });
 
                 _indicator = indicator;
-                _indicator.css('display','block');
+                _indicator.css('display', 'block');
 
                 callback();
-            }
-            else
-            {
+            } else {
                 var left = 0;
                 var top = 0;
-                var width =0;
-                var height =0;
+                var width = 0;
+                var height = 0;
 
                 var clone = _element[0].cloneNode(true);
 
@@ -233,16 +230,16 @@ angular.module('caDrag')
                     '<foreignObject width="100%" height="100%" x="' + left + '" y="' + top + '">' +
                     serialized +
                     '</foreignObject>' +
-                '</svg>';
-                
+                    '</svg>';
+
                 _indicator = angular.element(dataUri);
 
 
                 $body.append(_indicator);
-                
+
                 _indicator.css({
-                    'width' : _element.prop('offsetWidth') + 'px',
-                    'height' : _element.prop('offsetHeight') + 'px',
+                    'width': _element.prop('offsetWidth') + 'px',
+                    'height': _element.prop('offsetHeight') + 'px',
                 });
 
                 callback();
@@ -251,13 +248,13 @@ angular.module('caDrag')
             _indicator.css({
                 'cursor': 'move',
                 'pointer-events': 'none',
-                'position' : 'absolute',
+                'position': 'absolute',
                 'zIndex': '10000'
             });
 
             _indicator.addClass('ca-drag');
 
-            if( _showFeedback ) {
+            if (_showFeedback) {
 
                 _feedback = angular.element('<div class="feedback reject"></div>');
 
@@ -267,42 +264,42 @@ angular.module('caDrag')
             $body.append(_indicator);
         };
 
-        var getOffset = function( element ) {
+        var getOffset = function(element) {
             return element.getBoundingClientRect();
         };
 
-        var prepareForDragging = function( event ) {
-            
-            createIndicator( function() {
+        var prepareForDragging = function(event) {
+
+            createIndicator(function() {
                 _startEvent = event;
 
                 _offset = getOffset(_element[0]);
 
-                $timeout(function(){
+                $timeout(function() {
                     updateMovePosition(event);
                 });
             });
         };
 
-        var updateMovePosition = function( event ) {
+        var updateMovePosition = function(event) {
 
-            var x=0, y=0;
+            var x = 0,
+                y = 0;
 
             var pointerPos = DragUtil.getEventPosition(event);
             var startPosition = DragUtil.getEventPosition(_startEvent);
 
             var indicatorProps = getOffset(_indicator[0]);
 
-            switch( _dragPosition )
-            {
+            switch (_dragPosition) {
                 case 'center':
-                    x = pointerPos.x + _offsetX - ( indicatorProps.width / 2 );
-                    y = pointerPos.y + _offsetY - ( indicatorProps.height / 2 );
-                break;
+                    x = pointerPos.x + _offsetX - (indicatorProps.width / 2);
+                    y = pointerPos.y + _offsetY - (indicatorProps.height / 2);
+                    break;
                 case 'clone':
                     x = _offset.left - startPosition.x + pointerPos.x + _offsetX;
                     y = _offset.top - startPosition.y + pointerPos.y + _offsetY;
-                break;
+                    break;
                 default:
                 case 'corner':
                     x = pointerPos.x + _offsetX;
@@ -311,60 +308,60 @@ angular.module('caDrag')
             }
 
             _indicator.css({
-                left : x + 'px',
-                top : y + 'px',
+                left: x + 'px',
+                top: y + 'px',
             });
         };
 
         var restoreDragging = function() {
-            if( _indicator ) {
+            if (_indicator) {
                 _indicator.remove();
             }
         };
 
-        var DraggableElement = function( element ){
-            
+        var DraggableElement = function(element) {
+
             _element = element;
 
             var _self = this;
 
             var onMouseUp = function(event) {
-                
+
                 clearTimeout(_startIntv);
-                
+
                 _dragging = false;
 
-                restoreDragging( event );
+                restoreDragging(event);
 
                 $document.unbind('touchmove mousemove', onMouseMove);
                 $document.unbind('touchend mouseup', onMouseUp);
 
-                _self.emit('complete', new DragEvent( 'drag.complete', _self, event ));
+                _self.emit('complete', new DragEvent('drag.complete', _self, event));
             };
 
-            var onMouseMove = function( event ) {
+            var onMouseMove = function(event) {
                 event.preventDefault();
-                updateMovePosition( event );
-                _self.emit('dragging', new DragEvent( 'drag.move', _self, event ));
+                updateMovePosition(event);
+                _self.emit('dragging', new DragEvent('drag.move', _self, event));
             };
 
-            element.bind('mouseout', function(){
-                if(!_dragging) {
-                    clearTimeout(_startIntv);                    
+            element.bind('mouseout', function() {
+                if (!_dragging) {
+                    clearTimeout(_startIntv);
                 }
             });
 
-            element.bind('touchstart mousedown', function(event){
+            element.bind('touchstart mousedown', function(event) {
 
                 event.preventDefault();
 
-                _startIntv = setTimeout(function(){
+                _startIntv = setTimeout(function() {
                     _dragging = true;
-                    prepareForDragging( event );
-                    _self.emit('start', new DragEvent( 'drag.start', _self, event ));
+                    prepareForDragging(event);
+                    _self.emit('start', new DragEvent('drag.start', _self, event));
                     $document.bind('touchmove mousemove', onMouseMove);
                 }, 300);
-                
+
                 $document.bind('touchend mouseup', onMouseUp);
             });
 
@@ -374,79 +371,83 @@ angular.module('caDrag')
             };
         };
 
-        DraggableElement.prototype =  {
+        DraggableElement.prototype = {
 
-            on    : function(event, fct){
+            on: function(event, fct) {
                 _events = _events || {};
-                _events[event] = _events[event]   || [];
+                _events[event] = _events[event] || [];
                 _events[event].push(fct);
             },
 
-            off  : function(event, fct){
+            off: function(event, fct) {
                 _events = _events || {};
-                if( event in _events === false  ){ return; }
+                if (event in _events === false) {
+                    return;
+                }
                 _events[event].splice(_events[event].indexOf(fct), 1);
             },
 
-            emit : function(event /* , args... */){
+            emit: function(event /* , args... */ ) {
                 _events = _events || {};
-                if( event in _events === false  ) { return; }
-                for(var i = 0; i < _events[event].length; i++){
+                if (event in _events === false) {
+                    return;
+                }
+                for (var i = 0; i < _events[event].length; i++) {
                     _events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
                 }
             },
 
-            setOptions : function(options) {
+            setOptions: function(options) {
                 _options = options;
             },
 
-            setDragOffset : function(x, y) {
+            setDragOffset: function(x, y) {
                 _offsetX = x;
                 _offsetY = y;
             },
 
-            setDragPosition : function( position ) {
+            setDragPosition: function(position) {
                 _dragPosition = position || 'corner';
             },
 
-            showFeedback : function( show ) {
+            showFeedback: function(show) {
                 _showFeedback = show;
             },
 
-            setType : function( type ) {
+            setType: function(type) {
                 _type = type;
             },
 
-            getType : function() {
+            getType: function() {
                 return _type;
             },
 
-            setIndicatorFactory : function( func ) {
+            setIndicatorFactory: function(func) {
                 _indicatorFactory = func;
             },
 
-            event : function(name, original) {
-                return new DragEvent( name, this, original );
+            event: function(name, original) {
+                return new DragEvent(name, this, original);
             },
 
-            setFeedback : function( feedback ) {
-                
-                if(!_showFeedback) {
+            setFeedback: function(feedback) {
+
+                if (!_showFeedback) {
                     return;
                 }
 
-                _feedback.attr('class','feedback ' + feedback);
+                _feedback.attr('class', 'feedback ' + feedback);
             },
 
             get dragging() {
                 return _dragging;
             },
 
-            set data ( data ) {
+            set data(data) {
                 _data = data;
             },
 
-            get data () {
+            get data() {
                 return _data;
             },
 

@@ -10,8 +10,8 @@
 
 angular.module('caDrag')
 
-.service('DragUtil', function(){
-	
+.service('DragUtil', function() {
+
 	/**
 	 * Check if is on mobile
 	 * @return {Boolean}
@@ -26,7 +26,7 @@ angular.module('caDrag')
 	 * @param  {Element}  element Dom element
 	 * @return {Boolean}
 	 */
-	this.isHover = function( event, element ) {
+	this.isHover = function(event, element) {
 		console.log(event, element);
 	};
 
@@ -35,22 +35,26 @@ angular.module('caDrag')
 	 * @param  {Event} event Touch or mouse event
 	 * @return {Object}      Position
 	 */
-	this.getEventPosition = function( event ) {
+	this.getEventPosition = function(event) {
 
-		var x=0, y=0;
+		var x = 0,
+			y = 0;
 
-        if( event instanceof window.TouchEvent) {
-            if( event.touches && event.touches.length ){
-                x = event.touches[0].pageX;
-                y = event.touches[0].pageY;
-            }
-        } else if( angular.isDefined( event.element ) && angular.isDefined(event.originalEvent)) {
-        	return this.getEventPosition( event.originalEvent );
-        } else {
-            x = event.pageX;
-            y = event.pageY;
-        }
+		if (event instanceof window.TouchEvent) {
+			if (event.touches && event.touches.length) {
+				x = event.touches[0].pageX;
+				y = event.touches[0].pageY;
+			}
+		} else if (angular.isDefined(event.element) && angular.isDefined(event.originalEvent)) {
+			return this.getEventPosition(event.originalEvent);
+		} else {
+			x = event.pageX;
+			y = event.pageY;
+		}
 
-        return {'x':x,'y':y};
+		return {
+			'x': x,
+			'y': y
+		};
 	};
 });
