@@ -31,6 +31,38 @@ angular.module('caDrag')
 	};
 
 	/**
+	 * Get element rectangle 
+	 * @param  {Element}
+	 * @return {Object}   With keys left,top,width,height
+	 */
+	this.getRect = function(e) {
+        return e.getBoundingClientRect();
+	};
+
+	/**
+	 * Get distance between two events
+	 * @param  {Event}
+	 * @param  {Event}
+	 * @return {Number}
+	 */
+	this.getEventsDistance = function(a,b) {
+		
+		var point1 = this.getEventPosition(a);
+		var point2 = this.getEventPosition(b);
+
+		var xs = 0;
+		var ys = 0;
+
+		xs = point2.x - point1.x;
+		xs = xs * xs;
+
+		ys = point2.y - point1.y;
+		ys = ys * ys;
+
+		return Math.sqrt( xs + ys );
+	};
+
+	/**
 	 * Get event position
 	 * @param  {Event} event Touch or mouse event
 	 * @return {Object}      Position

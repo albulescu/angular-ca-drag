@@ -81,10 +81,8 @@ angular.module('caDrag')
          * Data for dragging element
          */
         var _data,
-            /**
-             * Interval used to delay drag action
-             */
-            _startIntv,
+            
+            _clickEvent,
 
             /**
              * Indicating that dragging is active for this dragging element
@@ -116,33 +114,7 @@ angular.module('caDrag')
              */
             _offset,
 
-            /**
-             * Drag indicator offset x
-             * @type {Number}
-             */
-            _offsetX = 0,
-
-            /**
-             * Drag indicator offset y
-             * @type {Number}
-             */
-            _offsetY = 0,
-
             _type = null,
-
-            _indicatorFactory = angular.noop,
-
-            /**
-             * Drag indicator position
-             * @type {String}
-             */
-            _dragPosition = 'corner',
-
-            /**
-             * Show drag feedback
-             * @type {Boolean}
-             */
-            _showFeedback = true,
 
             _options = {},
 
@@ -191,8 +163,8 @@ angular.module('caDrag')
 
         var createIndicator = function(callback) {
 
-            //create indicaor from user element
-            var indicator = _indicatorFactory(_type);
+            var factory = ( _options.indicatorFactory || angular.noop );
+            var indicator = factory( _type );
 
             if (indicator) {
                 var scope = $rootScope.$new(true);
@@ -211,12 +183,12 @@ angular.module('caDrag')
 
                 callback();
             } else {
-                var left = 0;
-                var top = 0;
-                var width = 0;
-                var height = 0;
+
+                _indicator= angular.element('<div>');
 
                 var clone = _element[0].cloneNode(true);
+
+                var rect = DragUtil.getRect( _element[0] );
 
                 clone.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
 
@@ -226,20 +198,19 @@ angular.module('caDrag')
                 var serialized = new XMLSerializer().serializeToString(clone);
 
                 // Create well formed data URL with our DOM string wrapped in SVG
-                var dataUri = '<svg xmlns="http://www.w3.org/2000/svg" width="' + ((width || _element[0].offsetWidth) + left) + '" height="' + ((height || _element[0].offsetHeight) + top) + '">' +
-                    '<foreignObject width="100%" height="100%" x="' + left + '" y="' + top + '">' +
+                var dataUri = '<svg xmlns="http://www.w3.org/2000/svg" width="' + rect.width + '" height="' + rect.height + '">' +
+                    '<foreignObject width="100%" height="100%" >' +
                     serialized +
                     '</foreignObject>' +
                     '</svg>';
 
-                _indicator = angular.element(dataUri);
-
+                _indicator.append(dataUri);
 
                 $body.append(_indicator);
 
                 _indicator.css({
-                    'width': _element.prop('offsetWidth') + 'px',
-                    'height': _element.prop('offsetHeight') + 'px',
+                    'width': rect.width + 'px',
+                    'height': rect.height + 'px',
                 });
 
                 callback();
@@ -254,7 +225,7 @@ angular.module('caDrag')
 
             _indicator.addClass('ca-drag');
 
-            if (_showFeedback) {
+            if (_options.showFeedback) {
 
                 _feedback = angular.element('<div class="feedback reject"></div>');
 
@@ -264,16 +235,12 @@ angular.module('caDrag')
             $body.append(_indicator);
         };
 
-        var getOffset = function(element) {
-            return element.getBoundingClientRect();
-        };
-
         var prepareForDragging = function(event) {
 
             createIndicator(function() {
                 _startEvent = event;
 
-                _offset = getOffset(_element[0]);
+                _offset = DragUtil.getRect(_element[0]);
 
                 $timeout(function() {
                     updateMovePosition(event);
@@ -286,24 +253,23 @@ angular.module('caDrag')
             var x = 0,
                 y = 0;
 
-            var pointerPos = DragUtil.getEventPosition(event);
-            var startPosition = DragUtil.getEventPosition(_startEvent);
+            var pointerPos      = DragUtil.getEventPosition(event);
+            var startPosition   = DragUtil.getEventPosition(_startEvent);
+            var indRect         = DragUtil.getRect(_indicator[0]);
 
-            var indicatorProps = getOffset(_indicator[0]);
-
-            switch (_dragPosition) {
+            switch ( _options.dragPosition ) {
                 case 'center':
-                    x = pointerPos.x + _offsetX - (indicatorProps.width / 2);
-                    y = pointerPos.y + _offsetY - (indicatorProps.height / 2);
+                    x = pointerPos.x + _options.dragOffset[0] - (indRect.width / 2);
+                    y = pointerPos.y + _options.dragOffset[1] - (indRect.height / 2);
                     break;
                 case 'clone':
-                    x = _offset.left - startPosition.x + pointerPos.x + _offsetX;
-                    y = _offset.top - startPosition.y + pointerPos.y + _offsetY;
+                    x = _offset.left - startPosition.x + pointerPos.x + _options.dragOffset[0];
+                    y = _offset.top - startPosition.y + pointerPos.y + _options.dragOffset[1];
                     break;
                 default:
                 case 'corner':
-                    x = pointerPos.x + _offsetX;
-                    y = pointerPos.y + _offsetY;
+                    x = pointerPos.x + _options.dragOffset[0];
+                    y = pointerPos.y + _options.dragOffset[1];
                     break;
             }
 
@@ -311,12 +277,6 @@ angular.module('caDrag')
                 left: x + 'px',
                 top: y + 'px',
             });
-        };
-
-        var restoreDragging = function() {
-            if (_indicator) {
-                _indicator.remove();
-            }
         };
 
         var DraggableElement = function(element) {
@@ -327,11 +287,11 @@ angular.module('caDrag')
 
             var onMouseUp = function(event) {
 
-                clearTimeout(_startIntv);
-
                 _dragging = false;
 
-                restoreDragging(event);
+                if (_indicator) {
+                    _indicator.remove();
+                }
 
                 $document.unbind('touchmove mousemove', onMouseMove);
                 $document.unbind('touchend mouseup', onMouseUp);
@@ -340,28 +300,27 @@ angular.module('caDrag')
             };
 
             var onMouseMove = function(event) {
-                event.preventDefault();
-                updateMovePosition(event);
-                _self.emit('dragging', new DragEvent('drag.move', _self, event));
-            };
 
-            element.bind('mouseout', function() {
-                if (!_dragging) {
-                    clearTimeout(_startIntv);
+                if (_dragging) {
+                    event.preventDefault();
+                    updateMovePosition(event);
+                    _self.emit('dragging', new DragEvent('drag.move', _self, event));
+                    return;
                 }
-            });
 
-            element.bind('touchstart mousedown', function(event) {
+                var distance = DragUtil.getEventsDistance(_clickEvent, event);
 
-                event.preventDefault();
-
-                _startIntv = setTimeout(function() {
+                if (!_dragging && distance > _options.startDistance) {
                     _dragging = true;
                     prepareForDragging(event);
                     _self.emit('start', new DragEvent('drag.start', _self, event));
-                    $document.bind('touchmove mousemove', onMouseMove);
-                }, 300);
+                }
+            };
 
+            element.bind('touchstart mousedown', function(event) {
+                event.preventDefault();
+                _clickEvent = event;
+                $document.bind('touchmove mousemove', onMouseMove);
                 $document.bind('touchend mouseup', onMouseUp);
             });
 
@@ -401,19 +360,6 @@ angular.module('caDrag')
                 _options = options;
             },
 
-            setDragOffset: function(x, y) {
-                _offsetX = x;
-                _offsetY = y;
-            },
-
-            setDragPosition: function(position) {
-                _dragPosition = position || 'corner';
-            },
-
-            showFeedback: function(show) {
-                _showFeedback = show;
-            },
-
             setType: function(type) {
                 _type = type;
             },
@@ -422,21 +368,14 @@ angular.module('caDrag')
                 return _type;
             },
 
-            setIndicatorFactory: function(func) {
-                _indicatorFactory = func;
-            },
-
             event: function(name, original) {
                 return new DragEvent(name, this, original);
             },
 
             setFeedback: function(feedback) {
-
-                if (!_showFeedback) {
-                    return;
+                if (_options.showFeedback) {
+                    _feedback.attr('class', 'feedback ' + feedback);
                 }
-
-                _feedback.attr('class', 'feedback ' + feedback);
             },
 
             get dragging() {
