@@ -1,21 +1,24 @@
 /**
- * Drag & Drop AngularJS Module
- * https://github.com/albulescu/caDrag
- *
- * Author Albulescu Cosmin <cosmin@albulescu.ro>
- * Licensed under the MIT license.
- */
+* Drag & Drop AngularJS Module v1.0.4
+* https://github.com/albulescu/caDrag
+*
+* Author Albulescu Cosmin <cosmin@albulescu.ro>
+* Licensed under the MIT license.
+*/
 
 'use strict';
 
-angular.module('caDrag', [])
+angular.module('caDrag',[])
 
 .provider('DragManager', function(  ){
 
     var options = {
         showFeedback : true,
         dragOffset   : [0,0],
-        dragPosition : 'corner'
+        dragPosition : 'corner',
+        indicatorScale: 1,
+        indicatorStyle : [],
+        indicatorFactory : null
     };
 
     /**
@@ -33,6 +36,18 @@ angular.module('caDrag', [])
      */
     this.setDragPosition = function( position ) {
         options.dragPosition = position || 'corner';
+    };
+
+    this.setIndicatorScale = function( n ) {
+        options.indicatorScale = n || 1;
+    };
+
+    this.setIndicatorStyle = function( style ) {
+        options.indicatorStyle = style || {};
+    };
+
+    this.setIndicatorFactory = function( func ) {
+        options.indicatorFactory = func;
     };
 
     this.$get = ['$document', '$timeout', '$log', 'DraggableElement', 
@@ -290,6 +305,8 @@ angular.module('caDrag', [])
                 //create draggable element from dom element
                 draggable = new DraggableElement(element);
 
+                draggable.setOptions( options );
+
                 draggable.setType( element.attr('ca-drag-type') );
 
                 if( _indicators ) {
@@ -329,13 +346,14 @@ angular.module('caDrag', [])
 
         return DragManager;
     }];
-})
+});
 
+angular.module('caDrag')
 
 /**
  * DragElement
  */
-.service('DraggableElement', function( $rootScope, $timeout, $document, $compile ){
+.service('DraggableElement', ["$rootScope", "$timeout", "$document", "$compile", function( $rootScope, $timeout, $document, $compile ){
 
     var returnTrue = function() {
         return true;
@@ -466,23 +484,57 @@ angular.module('caDrag', [])
              */
             _showFeedback = true,
             
-            /**
-             * Specify if indicator is a custom one used with ca-drag-clone
-             * @type {Boolean}
-             */
-            _custom = false,
+            _options = {},
 
             _startEvent;
+    
 
-        var createIndicator = function() {
+        var supportsCSSText = getComputedStyle(document.body).cssText !== '';
 
-            var indicator = _indicatorFactory( _type );
+        function copyCSS(elem, origElem) {
 
-            if( angular.isDefined(indicator) ) {
-                _custom = true;
+            var computedStyle = getComputedStyle(origElem);
+
+            if(supportsCSSText) {
+                elem.style.cssText = computedStyle.cssText;
+
+            } else {
+
+                // Really, Firefox?
+                for(var prop in computedStyle) {
+                    if(isNaN(parseInt(prop, 10)) && typeof computedStyle[prop] !== 'function' && !(/^(cssText|length|parentRule)$/).test(prop)) {
+                        elem.style[prop] = computedStyle[prop];
+                    }
+                }
+
             }
 
-            if( _custom && indicator )
+        }
+
+        function inlineStyles(elem, origElem) {
+
+            var children = elem.querySelectorAll('*');
+            var origChildren = origElem.querySelectorAll('*');
+
+            // copy the current style to the clone
+            copyCSS(elem, origElem, 1);
+
+            // collect all nodes within the element, copy the current style to the clone
+            Array.prototype.forEach.call(children, function(child, i) {
+                copyCSS(child, origChildren[i]);
+            });
+
+            // strip margins from the outer element
+            elem.style.margin = elem.style.marginLeft = elem.style.marginTop = elem.style.marginBottom = elem.style.marginRight = '';
+
+        }
+
+        var createIndicator = function( callback ) {
+
+            //create indicaor from user element
+            var indicator = _indicatorFactory( _type );
+
+            if( indicator )
             {
                 var scope = $rootScope.$new(true);
 
@@ -497,32 +549,43 @@ angular.module('caDrag', [])
 
                 _indicator = indicator;
                 _indicator.show();
+
+                callback();
             }
             else
             {
-                _indicator = angular.element(document.createElement('div'));
+                var left = 0;
+                var top = 0;
+                var width =0;
+                var height =0;
 
-                var img = _element.find('img');
+                var clone = _element[0].cloneNode(true);
 
-                if(img.length)
-                {
-                    img = img.clone();
+                clone.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
 
-                    img.css({
-                        'width' : _element.prop('offsetWidth') + 'px',
-                        'height' : _element.prop('offsetHeight') + 'px',
-                    });
+                // inline all CSS (ugh..)
+                inlineStyles(clone, _element[0]);
 
-                    _indicator.append( img );
-                }
+                var serialized = new XMLSerializer().serializeToString(clone);
 
+                // Create well formed data URL with our DOM string wrapped in SVG
+                var dataUri = '<svg xmlns="http://www.w3.org/2000/svg" width="' + ((width || _element[0].offsetWidth) + left) + '" height="' + ((height || _element[0].offsetHeight) + top) + '">' +
+                    '<foreignObject width="100%" height="100%" x="' + left + '" y="' + top + '">' +
+                    serialized +
+                    '</foreignObject>' +
+                '</svg>';
+                
+                _indicator = angular.element(dataUri);
+
+
+                $body.append(_indicator);
+                
                 _indicator.css({
                     'width' : _element.prop('offsetWidth') + 'px',
                     'height' : _element.prop('offsetHeight') + 'px',
-                    '-ms-transform': 'scale(.9,.9)',
-                    '-webkit-transform': 'scale(.9,.9)',
-                    'transform': 'scale(.9,.9)'
                 });
+
+                callback();
             }
 
             _indicator.css({
@@ -550,14 +613,14 @@ angular.module('caDrag', [])
 
         var prepareForDragging = function( event ) {
             
-            createIndicator();
+            createIndicator( function() {
+                _startEvent = event;
 
-            _startEvent = event;
+                _offset = getOffset(_element[0]);
 
-            _offset = getOffset(_element[0]);
-
-            $timeout(function(){
-                updateMovePosition(event);
+                $timeout(function(){
+                    updateMovePosition(event);
+                });
             });
         };
 
@@ -566,7 +629,6 @@ angular.module('caDrag', [])
             var x=0, y=0;
 
             var indicatorProps = getOffset(_indicator[0]);
-
 
             switch( _dragPosition )
             {
@@ -673,6 +735,10 @@ angular.module('caDrag', [])
                 }
             },
 
+            setOptions : function(options) {
+                _options = options;
+            },
+
             setDragOffset : function(x, y) {
                 _offsetX = x;
                 _offsetY = y;
@@ -733,14 +799,16 @@ angular.module('caDrag', [])
     };
 
     return DraggableElementWrapper;
-})
+}]);
+
+angular.module('caDrag')
 
 /**
  * Direcrive to specify data to keep in drag event.
  * This will automatically convert the element to 
  * draggable element.
  */
-.directive('caDragData', function( DragManager ){
+.directive('caDragData', ["DragManager", function( DragManager ){
     return {
         restrict : 'A',
         link : function(scope, element, attributes) {
@@ -752,21 +820,21 @@ angular.module('caDrag', [])
             }
         }
     };
-})
+}])
 
 /**
  * Enable dragging of the element
  */
-.directive('caDragEnabled', function( DragManager ){
+.directive('caDragEnabled', ["DragManager", function( DragManager ){
     return {
         restrict : 'A',
         link : function(scope, element) {
             DragManager.register( element );
         }
     };
-})
+}])
 
-.directive('caDropType', function( DragManager ){
+.directive('caDropType', ["DragManager", function( DragManager ){
     return {
         restrict : 'A',
         link : function(scope, element, attributes) {
@@ -774,9 +842,9 @@ angular.module('caDrag', [])
             element.data('ca-drop-type', attributes.caDropType );
         }
     };
-})
+}])
 
-.directive('caDragIndicator', function( DragManager ){
+.directive('caDragIndicator', ["DragManager", function( DragManager ){
     return {
         restrict : 'A',
         compile: function(element, attributes) {
@@ -790,9 +858,9 @@ angular.module('caDrag', [])
             element.remove();
         }
     };
-})
+}])
 
-.directive('caDragBegin', function( DragManager, $parse ){
+.directive('caDragBegin', ["DragManager", "$parse", function( DragManager, $parse ){
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
@@ -809,9 +877,9 @@ angular.module('caDrag', [])
             }
         }
     };
-})
+}])
 
-.directive('caDragMove', function( DragManager, $parse ){
+.directive('caDragMove', ["DragManager", "$parse", function( DragManager, $parse ){
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
@@ -828,12 +896,12 @@ angular.module('caDrag', [])
             }
         }
     };
-})
+}])
 
 /**
  * Handler for dragging complete
  */
-.directive('caDragComplete', function( DragManager, $parse ){
+.directive('caDragComplete', ["DragManager", "$parse", function( DragManager, $parse ){
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
@@ -850,12 +918,12 @@ angular.module('caDrag', [])
             }
         }
     };
-})
+}])
 
 /**
  * Register element as a drop target
  */
-.directive('caDropComplete', function( $parse, DragManager ){
+.directive('caDropComplete', ["$parse", "DragManager", function( $parse, DragManager ){
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
@@ -871,12 +939,12 @@ angular.module('caDrag', [])
             element.data('ca-drop-complete', fn );
         }
     };
-})
+}])
 
 /**
  * Hook for drop over
  */
-.directive('caDropHover', function( $parse, DragManager ){
+.directive('caDropHover', ["$parse", "DragManager", function( $parse, DragManager ){
     return {
         restrict : 'A',
         link : function( scope, element, attributes ) {
@@ -892,16 +960,16 @@ angular.module('caDrag', [])
             element.data('ca-drop-hover', fn );
         }
     };
-})
+}])
 
 /**
  * Register element as a drop target
  */
-.directive('caDropAccept', function( DragManager ){
+.directive('caDropAccept', ["DragManager", function( DragManager ){
     return {
         restrict : 'A',
         link : function( scope, element ) {
             DragManager.addDropTarget( element, scope );
         }
     };
-});
+}]);
