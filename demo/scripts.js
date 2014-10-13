@@ -1,7 +1,7 @@
 angular.module('dragging',['caDrag'])
 
 .config(function(DragManagerProvider){
-    DragManagerProvider.setDragPosition('clone')
+    DragManagerProvider.setDragPosition('corner')
 })
 
 .controller('test', function($scope, DragManager){
