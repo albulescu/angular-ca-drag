@@ -20,3 +20,10 @@ Directives
 - **ca-drop-success** - Callback to be called when drop some element. This will automatically set element as drop zone
 - **ca-drop-accept** - Set element as drop zone
 - **ca-drop-model** - Add this to drop element to auto update scope data
+
+Demo
+--
+[http://jsfiddle.net/albulescu/88szq02L/8/][demo]
+
+[demo]:http://jsfiddle.net/albulescu/88szq02L/8/
+
