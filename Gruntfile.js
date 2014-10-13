@@ -1,4 +1,11 @@
-// Generated on 2014-09-17 using generator-angular-fullstack 2.0.10
+/**
+ * Drag & Drop AngularJS Module
+ * https://github.com/albulescu/angular-ca-drag
+ *
+ * Author Albulescu Cosmin <cosmin@albulescu.ro>
+ * Licensed under the MIT license.
+ */
+
 'use strict';
 
 module.exports = function(grunt) {
