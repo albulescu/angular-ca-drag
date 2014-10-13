@@ -21,16 +21,6 @@ angular.module('caDrag')
 	};
 
 	/**
-	 * Check if event is over the element
-	 * @param  {Event}  event   MouseEvent or TouchEvent
-	 * @param  {Element}  element Dom element
-	 * @return {Boolean}
-	 */
-	this.isHover = function(event, element) {
-		console.log(event, element);
-	};
-
-	/**
 	 * Get element rectangle 
 	 * @param  {Element}
 	 * @return {Object}   With keys left,top,width,height
