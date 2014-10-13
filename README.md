@@ -23,7 +23,7 @@ Directives
 
 Demo
 --
-[http://jsfiddle.net/albulescu/88szq02L/8/][demo]
+[http://jsfiddle.net/albulescu/88szq02L/10/][demo]
 
-[demo]:http://jsfiddle.net/albulescu/88szq02L/8/
+[demo]:http://jsfiddle.net/albulescu/88szq02L/10/
 
