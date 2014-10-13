@@ -19,12 +19,13 @@
 }
 
 .draggables {
-    width:50%;
+    width:110px;
+    margin-right:50px;
     float:left;
 }
 .droppable {
-    width:50%;
-    float:right;
+    width:110px;
+    float:left;
 }
 
 .droppable .drop {
