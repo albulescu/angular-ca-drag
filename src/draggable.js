@@ -164,7 +164,7 @@ angular.module('caDrag')
         var createIndicator = function() {
 
             var factory = (_options.indicatorFactory || angular.noop);
-            var indicator = factory(_type);
+            var indicator = factory(_type, _element, _data);
 
             if (indicator) {
 
@@ -204,14 +204,24 @@ angular.module('caDrag')
                 indicator.append(dataUri);
             }
 
-            indicator.css({
-                'cursor': 'move',
+            var style = angular.extend({
                 'pointer-events': 'none',
                 'position': 'absolute',
                 'zIndex': '10000'
-            });
+            }, _options.indicatorStyle);
+
+            indicator.css(style);
 
             indicator.addClass('ca-drag');
+
+            if( _options.indicatorScale !== 1 ) {
+                indicator.css({
+                    'transform-origin': '0% 0%',
+                    '-ms-transform': 'scale('+_options.indicatorScale+')',
+                    '-webkit-transform': 'scale('+_options.indicatorScale+')',
+                    'transform': 'scale('+_options.indicatorScale+')'
+                });
+            }
 
             if (_options.showFeedback) {
 

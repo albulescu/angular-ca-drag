@@ -1,7 +1,21 @@
 angular.module('dragging',['caDrag'])
 
 .config(function(DragManagerProvider){
-    DragManagerProvider.setDragPosition('corner')
+
+    DragManagerProvider.setDragOffset(0,0);
+
+    // clone, center, corner
+    DragManagerProvider.setDragPosition('corner');
+
+    DragManagerProvider.setIndicatorScale(.7);
+
+    DragManagerProvider.setIndicatorStyle({
+      'opacity' : '.7'
+    });
+
+    DragManagerProvider.setIndicatorFactory(function(){
+        return false;/*Fall back to draggable element clone*/
+    });
 })
 
 .directive('console', function(){
