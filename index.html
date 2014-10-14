@@ -1,148 +1,47 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>angular-ca-drag by albulescu</title>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Angular CaDrag</title>
+  <meta name="description" content="Angular Drag &amp; Drop Module">
+  <meta name="author" content="Cosmin Albulescu">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../ca-drag.css">
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
+  <script src="../ca-drag.js"></script>
+  <script src="scripts.js"></script>
+</head>
+<body ng-app="dragging">
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-        <h1>
-        <a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Drag &amp; Drop Module for AngularJS</h1>
+    <h1>Angular Drag &amp; Drop Demo</h1>
 
-        <p><a href="https://github.com/albulescu/angular-ca-drag" target="_blank">angular-ca-drag</a> is a drag and drop module for <a href="https://angularjs.org/" target="_blank">AngularJS</a>. </p>
-
-        <h2></a>Features</h2>
-
-        <p>
-        <ol>
-          <li>Basic drag and drop functionality</li>
-          <li>Group drag items and drop target by keys</li>
-          <li>Data to send over the drag events</li>
-          <li>Custom callbacks for each drag event</li>
-          <li>Cloned and custom drag indicator</li>
-          <li>Drag feedback to specify if drop allowed or not</li>
-
-        </ol>
-        </p>
-
-        <h2></a>Api</h2>
-        <br/>
-        <table>
-          <tr>
-            <td width="300px" valign="top" align="right"><h3>Service</h3></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>DragManager</strong></td>
-            <td>
-              <p>Register drag elements, drop targets and handles the drop, feedback and other features</p>
-              <table>
-                <tr>
-                  <td valign="top" align="right"><strong>register(element)</strong></td>
-                  <td>Register drag elements, drop targets and handles the drop, feedback and other features</td>
-                </tr>
-                <tr>
-                  <td valign="top" align="right"><strong>addDropTarget(element, scope, over, complete)</strong></td>
-                  <td>A decorator for dom element. Enable simple drag functionality</td>
-                </tr>
-                <tr>
-                  <td valign="top" align="right"><strong>dragging</strong></td>
-                  <td>Property that indicating the dragging is active</td>
-                </tr>
-                <tr>
-                  <td valign="top" align="right"><strong>active</strong></td>
-                  <td>Active dragging element</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>DraggableElement</strong></td>
-            <td>A decorator for dom element. Enable simple drag functionality</td>
-          </tr>
-        </table>
-        <br/>
-        <table>
-
-          <tr>
-            <td width="30%" valign="top" align="right"><h3>Directive</h3></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drag-enabled</strong></td>
-            <td>Enable elment dragging</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drag-data</strong></td>
-            <td>Data from current scope to send it with events</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drag-type</strong></td>
-            <td>Specify the type of current dragging element. This is used when you drag multiple types in one page. Also you can specify on drop targets the ca-drop-type directive.</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drop-type</strong></td>
-            <td>Specify what kind of draggable elements this drop target will accept</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drag-clone</strong></td>
-            <td>The indicator to show when drag an element. By default an image is cloned from original element </td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drop-accept</strong></td>
-            <td>Register this element as drop zone</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drag-begin</strong><sup>(event)</sup></td>
-            <td>Event fired when dragging is started</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drag-move</strong><sup>(event)</sup></td>
-            <td>Event fired when dragging</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drag-complete</strong><sup>(event)</sup></td>
-            <td>Event fired when dragging is completed</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drop-complete</strong><sup>(event)</sup></td>
-            <td>Add this to drop target and it will be fired when a draggable element is dropped</td>
-          </tr>
-          <tr>
-            <td valign="top" align="right"><strong>ca-drop-over</strong><sup>(event)</sup></td>
-            <td>Add this to drop target and it will be fired when a draggable element is over the drop target</td>
-          </tr>
-        </table>
-      <br/>
-        
-        <h2>Issues</h2>
-
-        <p>Having trouble with plugin? Create issue at <a href="https://github.com/albulescu/angular-ca-drag/issues">Github Issues</a>.</p>
-
-        <h2>Demo</h2>
-        <p>
-          <a href="demo.html">Simple drag &amp; drop</a>
-        </p>
+    <div class="demobox" ng-controller="test1">
+      <h2>Custom indicators</h2>
+      <div class="body clearfix">
+        <div class="draggables">
+          <div ca-drag-type="man" ca-drag-data="item" ca-drag-enabled class="box man" ng-repeat="item in man">{{item.name}}</div>
+              <div ca-drag-type="woman" ca-drag-data="item" ca-drag-enabled class="box woman" ng-repeat="item in woman">{{item.name}}</div>
+        </div>
+        <div class="droppable">
+            <div ca-drop-type="man" ca-drop-hover="checkAge($event)" ca-drop-complete="onManDrop($event)" class="drop man"></div>
+            <div ca-drop-type="woman" ca-drop-hover="checkAge($event)" ca-drop-complete="onWomanDrop($event)" class="drop woman"></div>
+        </div>
+        <div ca-drag-indicator="man" class="dragbox man">
+            <span>Man:{{name}}</span>
+            <strong ng-show="age<18">( Under 18 )</strong>
+        </div>
+        <div ca-drag-indicator="woman" class="dragbox woman">
+            <span>Woman:{{name}}</span>
+            <strong ng-show="age<18">( Under 18 )</strong>
+        </div>
+      </div>
+      <div class="console">
+        <span class="message" ng-repeat="message in messages">{{message.text}}</span>
+      </div>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-41276212-15");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
-
-  </body>
+    
+</body>
 </html>
