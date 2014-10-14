@@ -24,7 +24,7 @@ Directives
 
 Demo
 --
-[http://jsfiddle.net/albulescu/88szq02L/18/][demo]
+[http://albulescu.github.io/angular-ca-drag/][demo]
 
-[demo]:http://jsfiddle.net/albulescu/88szq02L/18/
+[demo]:http://albulescu.github.io/angular-ca-drag/
 
