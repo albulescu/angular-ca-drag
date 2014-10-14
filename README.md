@@ -14,6 +14,7 @@ Services
 Directives
 --
 - **ca-drag-data** - Add data to pass to the drag event
+- **ca-drag-type** - Type of current dragging element
 - **ca-drag-enabled** - Enable dragging on the element
 - **ca-drag-begin** - Callback to be called when start dragging, this will automatically enable dragging on the element
 - **ca-drag-move** - Callback to be called when dragging, this will automatically enable dragging on the element
