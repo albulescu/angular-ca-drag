@@ -1,5 +1,5 @@
 /**
-* Drag & Drop AngularJS Module v1.1.1
+* Drag & Drop AngularJS Module v1.1.2
 * https://github.com/albulescu/caDrag
 *
 * Author Albulescu Cosmin <cosmin@albulescu.ro>
@@ -425,7 +425,7 @@ angular.module('caDrag', [])
                     _elements.push(draggable);
 
                     return draggable;
-                },
+                }
             };
 
             /**
@@ -607,7 +607,7 @@ angular.module('caDrag')
         var createIndicator = function() {
 
             var factory = (_options.indicatorFactory || angular.noop);
-            var indicator = factory(_type);
+            var indicator = factory(_type, _element, _data);
 
             if (indicator) {
 
@@ -647,14 +647,24 @@ angular.module('caDrag')
                 indicator.append(dataUri);
             }
 
-            indicator.css({
-                'cursor': 'move',
+            var style = angular.extend({
                 'pointer-events': 'none',
                 'position': 'absolute',
                 'zIndex': '10000'
-            });
+            }, _options.indicatorStyle);
+
+            indicator.css(style);
 
             indicator.addClass('ca-drag');
+
+            if( _options.indicatorScale !== 1 ) {
+                indicator.css({
+                    'transform-origin': '0% 0%',
+                    '-ms-transform': 'scale('+_options.indicatorScale+')',
+                    '-webkit-transform': 'scale('+_options.indicatorScale+')',
+                    'transform': 'scale('+_options.indicatorScale+')'
+                });
+            }
 
             if (_options.showFeedback) {
 
@@ -755,6 +765,18 @@ angular.module('caDrag')
                 $document.bind('touchend mouseup', onMouseUp);
             });
 
+            Object.defineProperty(this, 'dragging', {
+                get: function(){ return _dragging; }
+            });
+
+            Object.defineProperty(this, 'data', {
+                get: function(){ return _data; },
+                set: function(v) { _data = v; }
+            });
+
+            Object.defineProperty(this, 'element', {
+                get: function(){ return _element; }
+            });
 
             this.cancel = function() {
                 onMouseUp();
@@ -807,22 +829,6 @@ angular.module('caDrag')
                 if (_options.showFeedback) {
                     _feedback.attr('class', 'feedback ' + feedback);
                 }
-            },
-
-            get dragging() {
-                return _dragging;
-            },
-
-            set data(data) {
-                _data = data;
-            },
-
-            get data() {
-                return _data;
-            },
-
-            get element() {
-                return _element;
             }
         };
 

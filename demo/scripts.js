@@ -10,7 +10,6 @@ angular.module('dragging',['caDrag'])
         scope : true,
         link: function(scope, element) {
             scope.$watch('messages', function(){
-                console.log('msg change');
                 element[0].scrollTop = element[0].scrollHeight;
             });
         }
@@ -20,6 +19,8 @@ angular.module('dragging',['caDrag'])
 .controller('test1', function($scope, DragManager){
     
     $scope.messages = [];
+
+    $scope.manager = DragManager;
 
     $scope.man = [
         {name:'Alexander', age:21},
@@ -42,6 +43,12 @@ angular.module('dragging',['caDrag'])
             text : msg,
             time : Date.now()
         });
+    };
+
+    $scope.onDraggingBegin = function(event) {
+        if(!$scope.$$phase) {
+            $scope.$digest();
+        }
     };
 
     $scope.checkAge = function( event ) {

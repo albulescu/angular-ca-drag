@@ -425,7 +425,7 @@ angular.module('caDrag', [])
                     _elements.push(draggable);
 
                     return draggable;
-                },
+                }
             };
 
             /**
