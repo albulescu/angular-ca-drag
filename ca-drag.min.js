@@ -1,5 +1,5 @@
 /**
-* Drag & Drop AngularJS Module v1.1.2
+* Drag & Drop AngularJS Module v1.1.4
 * https://github.com/albulescu/caDrag
 *
 * Author Albulescu Cosmin <cosmin@albulescu.ro>
